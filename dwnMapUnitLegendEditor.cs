@@ -1601,5 +1601,26 @@ namespace ncgmpToolbar
 
     #endregion
 
+    #region "Age Controls by Genhan"
+        private void btnEvtAccept_Click(object sender, EventArgs e)
+        {
+        }
+    
+
+        private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (cboEventType.SelectedIndex)
+            {
+                case 0:
+                    grpSingleTimeScale.Show();
+                    grpRangeTimeScale.Hide();
+                    break;
+                case 1:
+                    grpSingleTimeScale.Hide();
+                    grpRangeTimeScale.Show();
+                    break;
+            }
+        }
+    #endregion
     }
 }

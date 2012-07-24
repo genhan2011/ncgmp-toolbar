@@ -73,6 +73,8 @@ namespace ncgmpToolbar
             {
                 initLithListBox(m_theWorkspace, trvLegendItems.SelectedNode.Name, false);
             }
+
+            initAgeTab();
           
         }
 
@@ -1602,25 +1604,647 @@ namespace ncgmpToolbar
     #endregion
 
     #region "Age Controls by Genhan"
-        private void btnEvtAccept_Click(object sender, EventArgs e)
+        private void initAgeTab()
         {
+            initTimeScaleDictionary();
+            initEmptyAgeEventTab();
         }
-    
 
-        private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (cboEventType.SelectedIndex)
+        #region "Initialize the empty tabs"
+            private void initEmptyAgeEventTab()
             {
-                case 0:
-                    grpSingleTimeScale.Show();
-                    grpRangeTimeScale.Hide();
-                    break;
-                case 1:
-                    grpSingleTimeScale.Hide();
-                    grpRangeTimeScale.Show();
-                    break;
+                cboEventType.SelectedIndex = 0;
+                txtAgeDisplay.Clear();
+                cboEvt.SelectedIndex = -1;
+                txtNotes.Clear();
+
+                initEmptySingleTimeScale();
+                initEmptyRangeTimeScale();
             }
-        }
+
+            private void initEmptySingleTimeScale()
+            {
+                cboSEra.SelectedIndex = -1;
+                txtSYoungerAge.Clear();
+                txtSOlderAge.Clear();
+                txtSYoungerAgeUncertainty.Clear();
+                txtSOlderAgeUncertainty.Clear();
+            }
+
+            private void initEmptyRangeTimeScale()
+            {
+                cboROlderEra.SelectedIndex = -1;
+                cboRYoungerEra.SelectedIndex = -1;
+                txtROlderAge.Clear();
+                txtROlderAgeUncertainty.Clear();
+                txtRYoungerAge.Clear();
+                txtRYoungerUncertainty.Clear();
+            }
+        #endregion
+
+        #region "Functions in age and event list tab by Genhan"
+            private void btnAgeAdd_Click(object sender, EventArgs e)
+            {
+                tabEvtEditor.SelectedTab = tabAgeEvent;
+                initEmptyAgeEventTab();
+            }
+        #endregion
+        
+        #region "Functions in event details tab by Genhan"
+            private struct TimeScale
+            {
+                public string label;
+                public double startTime;
+                public double endTime;
+            }
+            private Dictionary<string, TimeScale> m_TimeScaleDictionary = new Dictionary<string, TimeScale>();
+            
+            private void initTimeScaleDictionary()
+            {
+                string[] labels = {"Holocene Epoch",
+                                    "Quaternary Period",
+                                    "Cainozoic Era",
+                                    "Cenozoic Era",
+                                    "Phanerozoic Eon",
+                                    "Upper Pleistocene Age",
+                                    "Pleistocene Epoch",
+                                    "Ionian Age",
+                                    "Calabrian Age",
+                                    "Gelasian Age",
+                                    "Piacenzian Age",
+                                    "Pliocene Epoch",
+                                    "Neogene Period",
+                                    "Zanclean Age",
+                                    "Messinian Age",
+                                    "Miocene Epoch",
+                                    "Tortonian Age",
+                                    "Serravallian Age",
+                                    "Langhian Age",
+                                    "Burdigalian Age",
+                                    "Aquitanian Age",
+                                    "Chattian Age",
+                                    "Oligocene Epoch",
+                                    "Palaeogene Period",
+                                    "Rupelian Age",
+                                    "Priabonian Age",
+                                    "Eocene Epoch",
+                                    "Bartonian Age",
+                                    "Lutetian Age",
+                                    "Ypresian Age",
+                                    "Thanetian Age",
+                                    "Palaeocene Epoch",
+                                    "Selandian Age",
+                                    "Danian Age",
+                                    "Maastrichtian Age",
+                                    "Upper Cretaceous Epoch",
+                                    "Cretaceous Period",
+                                    "Mesozoic Era",
+                                    "Campanian Age",
+                                    "Santonian Age",
+                                    "Coniacian Age",
+                                    "Turonian Age",
+                                    "Cenomanian Age",
+                                    "Albian Age",
+                                    "Lower Cretaceous Epoch",
+                                    "Aptian Age",
+                                    "Barremian Age",
+                                    "Hauterivian Age",
+                                    "Valanginian Age",
+                                    "Berriasian Age",
+                                    "Tithonian Age",
+                                    "Upper Jurassic Epoch",
+                                    "Jurassic Period",
+                                    "Kimmeridgian Age",
+                                    "Oxfordian Age",
+                                    "Callovian Age",
+                                    "Middle Jurassic Epoch",
+                                    "Bathonian Age",
+                                    "Bajocian Age",
+                                    "Aalenian Age",
+                                    "Toarcian Age",
+                                    "Lower Jurassic Epoch",
+                                    "Pliensbachian Age",
+                                    "Sinemurian Age",
+                                    "Hettangian Age",
+                                    "Rhaetian Age",
+                                    "Upper Triassic Epoch",
+                                    "Triassic Period",
+                                    "Norian Age",
+                                    "Carnian Age",
+                                    "Ladinian Age",
+                                    "Middle Triassic Epoch",
+                                    "Anisian Age",
+                                    "Olenekian Age",
+                                    "Lower Triassic Epoch",
+                                    "Induan Age",
+                                    "Changhsingian Age",
+                                    "Lopingian Epoch",
+                                    "Permian Period",
+                                    "Palaeozoic Era",
+                                    "Wuchiapingian Age",
+                                    "Guadalupian Epoch",
+                                    "Wordian Age",
+                                    "Roadian Age",
+                                    "Capitanian Age",
+                                    "Kungurian Age",
+                                    "Cisuralian Epoch",
+                                    "Artinskian Age",
+                                    "Sakmarian Age",
+                                    "Asselian Age",
+                                    "Gzhelian Age",
+                                    "Upper Pennsylvanian Epoch",
+                                    "Pennsylvanian Sub-period",
+                                    "Upper Mississippian Epoch",
+                                    "Carboniferous Period",
+                                    "Kasimovian Age",
+                                    "Middle Pennsylvanian Epoch",
+                                    "Moscovian Age",
+                                    "Bashkirian Age",
+                                    "Lower Pennsylvanian Epoch",
+                                    "Serpukhovian Age",
+                                    "Mississippian Sub-period",
+                                    "Middle Mississippian Epoch",
+                                    "Visean Age",
+                                    "Lower Mississippian Epoch",
+                                    "Tournaisian Age",
+                                    "Famennian Age",
+                                    "Upper Devonian Epoch",
+                                    "Devonian Period",
+                                    "Frasnian Age",
+                                    "Givetian Age",
+                                    "Middle Devonian Epoch",
+                                    "Eifelian Age",
+                                    "Emsian Age",
+                                    "Lower Devonian Epcoh",
+                                    "Pragian Age",
+                                    "Lochkovian Age",
+                                    "Pridoli Epoch",
+                                    "Silurian Period",
+                                    "Ludfordian Age",
+                                    "Gorstian Age",
+                                    "Ludlow Epoch",
+                                    "Homerian Age",
+                                    "Wenlock Epoch",
+                                    "Sheinwoodian Age",
+                                    "Telychian Age",
+                                    "Llandovery Epoch",
+                                    "Aeronian Age",
+                                    "Rhuddanian Age",
+                                    "Hirnantian Age",
+                                    "Upper Ordovician Epoch",
+                                    "Ordovician Period",
+                                    "Katian Age",
+                                    "Sandbian Age",
+                                    "Darriwilian Age",
+                                    "Middle Ordovician Epoch",
+                                    "Dapingian Age",
+                                    "Floian Age",
+                                    "Lower Ordovician Epoch",
+                                    "Tremadocian Age",
+                                    "Cambrian Stage 10 Age",
+                                    "Furongian Epoch",
+                                    "Cambrian Period",
+                                    "Cambrian Stage 9 Age",
+                                    "Paibian Age",
+                                    "Guzhangian Age",
+                                    "Cambrian Series 3 Epoch",
+                                    "Drumian Age",
+                                    "Cambrian Stage 5 Age",
+                                    "Cambrian Stage 4 Age",
+                                    "Cambrian Series 2 Epoch",
+                                    "Cambrian Stage 3 Age",
+                                    "Cambrian Stage 2 Age",
+                                    "Terreneuvian Epoch",
+                                    "Fortunian Age",
+                                    "Ediacaran Period",
+                                    "Neoproterozoic Era",
+                                    "Proterozoic Eon",
+                                    "Precambrian Supereon",
+                                    "Cryogenian Period",
+                                    "Tonian Period",
+                                    "Stenian Period",
+                                    "Mesoproterozoic Era",
+                                    "Ectasian Period",
+                                    "Calymmian Period",
+                                    "Statherian Period",
+                                    "Palaeoproterozoic Era",
+                                    "Orosirian Period",
+                                    "Rhyacian Period",
+                                    "Siderian Period",
+                                    "Neoarchaean Era",
+                                    "Archaean Eon",
+                                    "Mesoarchaean Era",
+                                    "Palaeoarchaean Era",
+                                    "Eoarchaean Era",
+                                    "Hadean Eon"
+                                    };
+                double[] startTimes = {0.0117,
+                                        2.588,
+                                        65.5,
+                                        65.5,
+                                        542,
+                                        0.126,
+                                        2.588,
+                                        0.781,
+                                        1.806,
+                                        2.588,
+                                        3.6,
+                                        5.332,
+                                        23.02,
+                                        5.332,
+                                        7.246,
+                                        23.02,
+                                        11.608,
+                                        13.82,
+                                        15.97,
+                                        20.43,
+                                        23.02,
+                                        28.4,
+                                        33.9,
+                                        65.5,
+                                        33.9,
+                                        37.2,
+                                        55.8,
+                                        40.4,
+                                        48.6,
+                                        55.8,
+                                        58.7,
+                                        65.5,
+                                        61.1,
+                                        65.5,
+                                        70.6,
+                                        99.6,
+                                        145.5,
+                                        251,
+                                        83.5,
+                                        85.8,
+                                        89.3,
+                                        93.6,
+                                        99.6,
+                                        112,
+                                        145.5,
+                                        125,
+                                        130,
+                                        133.9,
+                                        140.2,
+                                        145.5,
+                                        150.8,
+                                        161.2,
+                                        199.6,
+                                        155.6,
+                                        161.2,
+                                        164.7,
+                                        175.6,
+                                        167.7,
+                                        171.6,
+                                        175.6,
+                                        183,
+                                        199.6,
+                                        189.6,
+                                        196.5,
+                                        199.6,
+                                        203.6,
+                                        228.7,
+                                        251,
+                                        216.5,
+                                        228.7,
+                                        237,
+                                        245.9,
+                                        245.9,
+                                        249.5,
+                                        251,
+                                        251,
+                                        253.8,
+                                        260.4,
+                                        299,
+                                        542,
+                                        260.4,
+                                        270.6,
+                                        268,
+                                        270.6,
+                                        265.8,
+                                        275.6,
+                                        299,
+                                        284.4,
+                                        294.6,
+                                        299,
+                                        303.4,
+                                        307.2,
+                                        318.1,
+                                        328.3,
+                                        359.2,
+                                        307.2,
+                                        311.7,
+                                        311.7,
+                                        318.1,
+                                        318.1,
+                                        328.3,
+                                        359.2,
+                                        345.3,
+                                        345.3,
+                                        359.2,
+                                        359.2,
+                                        374.5,
+                                        385.3,
+                                        416,
+                                        385.3,
+                                        391.8,
+                                        397.5,
+                                        397.5,
+                                        407,
+                                        416,
+                                        411.2,
+                                        416,
+                                        418.7,
+                                        443.7,
+                                        421.3,
+                                        422.9,
+                                        418.7,
+                                        426.2,
+                                        428.2,
+                                        428.2,
+                                        436,
+                                        443.7,
+                                        439,
+                                        443.7,
+                                        445.6,
+                                        460.9,
+                                        488.3,
+                                        455.8,
+                                        460.9,
+                                        468.1,
+                                        471.8,
+                                        471.8,
+                                        478.6,
+                                        488.3,
+                                        488.3,
+                                        492,
+                                        499,
+                                        542,
+                                        496,
+                                        499,
+                                        503,
+                                        510,
+                                        506.5,
+                                        510,
+                                        517,
+                                        521,
+                                        521,
+                                        528,
+                                        542,
+                                        542,
+                                        635,
+                                        1000,
+                                        2500,
+                                        9999.9999,
+                                        850,
+                                        1000,
+                                        1200,
+                                        1600,
+                                        1400,
+                                        1600,
+                                        1800,
+                                        2500,
+                                        2050,
+                                        2300,
+                                        2500,
+                                        2800,
+                                        4000,
+                                        3200,
+                                        3600,
+                                        4000,
+                                        9999.9999};
+                double[] endTimes = {0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0.0117,
+                                        0.0117,
+                                        0.126,
+                                        0.781,
+                                        1.806,
+                                        2.588,
+                                        2.588,
+                                        2.588,
+                                        3.6,
+                                        5.332,
+                                        5.332,
+                                        7.246,
+                                        11.608,
+                                        13.82,
+                                        15.97,
+                                        20.43,
+                                        23.02,
+                                        23.02,
+                                        23.02,
+                                        28.4,
+                                        33.9,
+                                        33.9,
+                                        37.2,
+                                        40.4,
+                                        48.6,
+                                        55.8,
+                                        55.8,
+                                        58.7,
+                                        61.1,
+                                        65.5,
+                                        65.5,
+                                        65.5,
+                                        65.5,
+                                        70.6,
+                                        83.5,
+                                        85.8,
+                                        89.3,
+                                        93.6,
+                                        99.6,
+                                        99.6,
+                                        112,
+                                        125,
+                                        130,
+                                        133.9,
+                                        140.2,
+                                        145.5,
+                                        145.5,
+                                        145.5,
+                                        150.8,
+                                        155.6,
+                                        161.2,
+                                        161.2,
+                                        164.7,
+                                        167.7,
+                                        171.6,
+                                        175.6,
+                                        175.6,
+                                        183,
+                                        189.6,
+                                        196.5,
+                                        199.6,
+                                        199.6,
+                                        199.6,
+                                        203.6,
+                                        216.5,
+                                        228.7,
+                                        228.7,
+                                        237,
+                                        245.9,
+                                        245.9,
+                                        249.5,
+                                        251,
+                                        251,
+                                        251,
+                                        251,
+                                        253.8,
+                                        260.4,
+                                        265.8,
+                                        268,
+                                        270.6,
+                                        270.6,
+                                        270.6,
+                                        275.6,
+                                        284.4,
+                                        294.6,
+                                        299,
+                                        299,
+                                        299,
+                                        299,
+                                        299,
+                                        303.4,
+                                        307.2,
+                                        307.2,
+                                        311.7,
+                                        311.7,
+                                        318.1,
+                                        318.1,
+                                        328.3,
+                                        328.3,
+                                        345.3,
+                                        345.3,
+                                        359.2,
+                                        359.2,
+                                        359.2,
+                                        374.5,
+                                        385.3,
+                                        385.3,
+                                        391.8,
+                                        397.5,
+                                        397.5,
+                                        407,
+                                        411.2,
+                                        416,
+                                        416,
+                                        418.7,
+                                        421.3,
+                                        422.9,
+                                        422.9,
+                                        422.9,
+                                        426.2,
+                                        428.2,
+                                        428.2,
+                                        436,
+                                        439,
+                                        443.7,
+                                        443.7,
+                                        443.7,
+                                        445.6,
+                                        455.8,
+                                        460.9,
+                                        460.9,
+                                        468.1,
+                                        471.8,
+                                        471.8,
+                                        478.6,
+                                        488.3,
+                                        488.3,
+                                        488.3,
+                                        492,
+                                        496,
+                                        499,
+                                        499,
+                                        503,
+                                        506.5,
+                                        510,
+                                        510,
+                                        517,
+                                        521,
+                                        521,
+                                        528,
+                                        542,
+                                        542,
+                                        542,
+                                        542,
+                                        635,
+                                        850,
+                                        1000,
+                                        1000,
+                                        1200,
+                                        1400,
+                                        1600,
+                                        1600,
+                                        1800,
+                                        2050,
+                                        2300,
+                                        2500,
+                                        2500,
+                                        2800,
+                                        3200,
+                                        3600,
+                                        4000};
+
+                for (int i = 0; i < labels.Length; i++)
+                {
+                    TimeScale aTimeScale = new TimeScale();
+                    aTimeScale.label = labels[i];
+                    aTimeScale.startTime = startTimes[i];
+                    aTimeScale.endTime = endTimes[i];
+
+                    m_TimeScaleDictionary.Add(aTimeScale.label, aTimeScale);
+                }
+            }
+
+            private void btnEvtAccept_Click(object sender, EventArgs e)
+            {
+            }
+
+            private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                switch (cboEventType.SelectedIndex)
+                {
+                    case 0:
+                        grpSingleTimeScale.Show();
+                        grpRangeTimeScale.Hide();
+                        initEmptyRangeTimeScale();
+                        break;
+                    case 1:
+                        grpSingleTimeScale.Hide();
+                        grpRangeTimeScale.Show();
+                        initEmptySingleTimeScale();
+                        break;
+                }
+            }
+
+            private void cboSEra_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                string thisEra = cboSEra.SelectedItem.ToString();
+                TimeScale thisTimeScale = m_TimeScaleDictionary[thisEra];
+                txtSYoungerAge.Text = thisTimeScale.startTime.ToString();
+                txtSOlderAge.Text = thisTimeScale.endTime.ToString();
+            }      
+
+            private void cboRYoungerEra_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                string thisYoungerEra = cboRYoungerEra.SelectedItem.ToString();
+                TimeScale thisYoungerTimeScale = m_TimeScaleDictionary[thisYoungerEra];
+                txtRYoungerAge.Text = thisYoungerTimeScale.startTime.ToString();
+            }
+
+            private void cboROlderEra_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                string thisOlderEra = cboROlderEra.SelectedItem.ToString();
+                TimeScale thisOlderTimeScale = m_TimeScaleDictionary[thisOlderEra];
+                txtROlderAge.Text = thisOlderTimeScale.endTime.ToString();
+            }
+        #endregion
     #endregion
     }
 }

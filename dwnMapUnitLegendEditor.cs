@@ -2225,6 +2225,8 @@ namespace ncgmpToolbar
 
             private void cboSEra_SelectedIndexChanged(object sender, EventArgs e)
             {
+                if (cboSEra.SelectedIndex == -1) { return; }
+
                 string thisEra = cboSEra.SelectedItem.ToString();
                 TimeScale thisTimeScale = m_TimeScaleDictionary[thisEra];
                 txtSYoungerAge.Text = thisTimeScale.startTime.ToString();
@@ -2233,6 +2235,8 @@ namespace ncgmpToolbar
 
             private void cboRYoungerEra_SelectedIndexChanged(object sender, EventArgs e)
             {
+                if (cboRYoungerEra.SelectedIndex == -1) { return; }
+
                 string thisYoungerEra = cboRYoungerEra.SelectedItem.ToString();
                 TimeScale thisYoungerTimeScale = m_TimeScaleDictionary[thisYoungerEra];
                 txtRYoungerAge.Text = thisYoungerTimeScale.startTime.ToString();
@@ -2240,9 +2244,15 @@ namespace ncgmpToolbar
 
             private void cboROlderEra_SelectedIndexChanged(object sender, EventArgs e)
             {
+                if (cboROlderEra.SelectedIndex == -1) { return; }
+
                 string thisOlderEra = cboROlderEra.SelectedItem.ToString();
                 TimeScale thisOlderTimeScale = m_TimeScaleDictionary[thisOlderEra];
                 txtROlderAge.Text = thisOlderTimeScale.endTime.ToString();
+            }
+
+            private void btnAgeGen_Click(object sender, EventArgs e)
+            {
             }
         #endregion
     #endregion

@@ -36,7 +36,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
         }
 
         private Dictionary<string, ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributes>();
-        public Dictionary<string, ExtendedAttributes> ExtendedAttributes
+        public Dictionary<string, ExtendedAttributes> ExtendedAttributesDictionary
         {
             get { return m_ExtendedAttributesDictionary; }
             set { m_ExtendedAttributesDictionary = value; }

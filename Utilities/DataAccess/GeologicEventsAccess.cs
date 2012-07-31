@@ -32,6 +32,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             public string AgeYoungerValue;
             public string AgeOlderValue;
             public string DataSourceID;
+            public string Notes;
             public bool RequiresUpdate;
         }
 
@@ -58,6 +59,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             int ageYoungerValueFld = m_GeologicEventsTable.FindField("AgeYoungerValue");
             int ageOlderValueFld = m_GeologicEventsTable.FindField("AgeOlderValue");
             int dataSrcFld = m_GeologicEventsTable.FindField("DataSourceID");
+            int notesFld = m_GeologicEventsTable.FindField("Notes");
 
             ICursor theCursor;
 
@@ -83,6 +85,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
                 anGeologicEvents.AgeYoungerValue = theRow.get_Value(ageYoungerValueFld).ToString();
                 anGeologicEvents.AgeOlderValue = theRow.get_Value(ageOlderValueFld).ToString();
                 anGeologicEvents.DataSourceID = theRow.get_Value(dataSrcFld).ToString();
+                anGeologicEvents.Notes = theRow.get_Value(notesFld).ToString();
                 anGeologicEvents.RequiresUpdate = true;
 
                 m_GeologicEventsDictionary.Add(anGeologicEvents.GeologicEvents_ID, anGeologicEvents);
@@ -92,7 +95,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
         }
 
         public string NewGeologicEvents(string Event, string AgeDisplay, string AgeYoungerTerm, string AgeOlderTerm, string TimeScale,
-            string AgeYoungerValue, string AgeOlderValue, string DataSourceID)
+            string AgeYoungerValue, string AgeOlderValue, string DataSourceID, string Notes)
         {
             GeologicEvents newGeologicEvents = new GeologicEvents();
             
@@ -106,6 +109,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             newGeologicEvents.TimeScale = TimeScale;
             newGeologicEvents.AgeYoungerValue = AgeYoungerValue;
             newGeologicEvents.DataSourceID = DataSourceID;
+            newGeologicEvents.Notes = Notes;
             newGeologicEvents.RequiresUpdate = false;
 
             m_GeologicEventsDictionary.Add(newGeologicEvents.GeologicEvents_ID, newGeologicEvents);
@@ -132,6 +136,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             int ageYoungerValueFld = m_GeologicEventsTable.FindField("AgeYoungerValue");
             int ageOlderValueFld = m_GeologicEventsTable.FindField("AgeOlderValue");
             int dataSrcFld = m_GeologicEventsTable.FindField("DataSourceID");
+            int notesFld = m_GeologicEventsTable.FindField("Notes");
 
             IEditor theEditor = ArcMap.Editor;
             if (theEditor.EditState == esriEditState.esriStateNotEditing) { theEditor.StartEditing(m_theWorkspace); }
@@ -162,6 +167,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
                             theRowBuffer.set_Value(ageYoungerValueFld, thisGeologicEvents.AgeYoungerValue);
                             theRowBuffer.set_Value(ageOlderValueFld, thisGeologicEvents.AgeOlderValue);
                             theRowBuffer.set_Value(dataSrcFld, thisGeologicEvents.DataSourceID);
+                            theRowBuffer.set_Value(notesFld, thisGeologicEvents.Notes);
 
                             insertCursor.InsertRow(theRowBuffer);
                             break;
@@ -195,6 +201,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
                     theRow.set_Value(ageYoungerValueFld, thisGeologicEvents.AgeYoungerValue);
                     theRow.set_Value(ageOlderValueFld, thisGeologicEvents.AgeOlderValue);
                     theRow.set_Value(dataSrcFld, thisGeologicEvents.DataSourceID);
+                    theRow.set_Value(notesFld, thisGeologicEvents.Notes);
 
                     updateCursor.UpdateRow(theRow);
 

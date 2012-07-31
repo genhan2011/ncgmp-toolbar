@@ -1627,8 +1627,6 @@ namespace ncgmpToolbar
                 cboSEra.SelectedIndex = -1;
                 txtSYoungerAge.Clear();
                 txtSOlderAge.Clear();
-                txtSYoungerAgeUncertainty.Clear();
-                txtSOlderAgeUncertainty.Clear();
             }
 
             private void initEmptyRangeTimeScale()
@@ -1636,9 +1634,7 @@ namespace ncgmpToolbar
                 cboROlderEra.SelectedIndex = -1;
                 cboRYoungerEra.SelectedIndex = -1;
                 txtROlderAge.Clear();
-                txtROlderAgeUncertainty.Clear();
                 txtRYoungerAge.Clear();
-                txtRYoungerUncertainty.Clear();
             }
         #endregion
 
@@ -1657,8 +1653,7 @@ namespace ncgmpToolbar
                 public double startTime;
                 public double endTime;
             }
-            private Dictionary<string, TimeScale> m_TimeScaleDictionary = new Dictionary<string, TimeScale>();
-            
+            private Dictionary<string, TimeScale> m_TimeScaleDictionary = new Dictionary<string, TimeScale>();    
             private void initTimeScaleDictionary()
             {
                 string[] labels = {"Holocene Epoch",
@@ -2202,8 +2197,60 @@ namespace ncgmpToolbar
                 }
             }
 
+            
+            private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
+            private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+            private bool isUpdate4AgeEvent = false;
+
+            /// <summary>
+            /// Add/update geologic event in m_GeologicEventsDictionary and events list box
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             private void btnEvtAccept_Click(object sender, EventArgs e)
             {
+                
+                if (m_theWorkspace == null) { return; }
+
+                if (txtAgeDisplay.Text == "") {
+                    MessageBox.Show("Press 'refresh' button to generate value!", "Error");
+                    return;
+                }
+
+
+                GeologicEventsAccess thisGeologicEventsAccess = new GeologicEventsAccess(m_theWorkspace);
+                string dataSrcID = commonFunctions.GetCurrentDataSourceID();
+                string thisKey;
+                GeologicEventsAccess.GeologicEvents thisGeologicEvents;
+
+                if (isUpdate4AgeEvent)
+                {
+                }
+                else
+                {
+                    switch (cboEventType.SelectedItem.ToString())
+                    {
+                        case "Single Age Event":
+                            thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboSEra.SelectedItem.ToString(), cboSEra.SelectedItem.ToString(),
+                                cboEventType.SelectedItem.ToString(), txtSYoungerAge.Text, txtSOlderAge.Text, dataSrcID, txtNotes.Text);
+                            thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
+                            thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
+                            m_GeologicEventsDictionary.Add(thisKey, thisGeologicEvents);
+                            break;
+                        case "Age Range Event":
+                            thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboRYoungerEra.SelectedItem.ToString(), cboROlderEra.SelectedItem.ToString(),
+                                cboEventType.SelectedItem.ToString(), txtRYoungerAge.Text, txtROlderAge.Text, dataSrcID, txtNotes.Text);
+                            thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
+                            thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
+                            m_GeologicEventsDictionary.Add(thisKey, thisGeologicEvents);
+                            break;
+                    }
+
+                    /// Add text item into event list box
+                    liEvts.Items.Add(txtAgeDisplay.Text);
+                    /// Switch into event list tab
+                    tabEvtEditor.SelectedTab = tabAgeList;
+                }
             }
 
             private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
@@ -2250,9 +2297,31 @@ namespace ncgmpToolbar
                 TimeScale thisOlderTimeScale = m_TimeScaleDictionary[thisOlderEra];
                 txtROlderAge.Text = thisOlderTimeScale.endTime.ToString();
             }
-
+            
+            /// <summary>
+            /// Generate the Age Display string
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             private void btnAgeGen_Click(object sender, EventArgs e)
             {
+                txtAgeDisplay.Text = cboEvt.SelectedItem.ToString() + "-" + cboEventType.SelectedItem.ToString();
+                string evtTerm = cboEvt.SelectedItem.ToString();
+
+                switch (cboEventType.SelectedItem.ToString())
+                {
+                    case "Single Age Event":
+                        txtAgeDisplay.Text = evtTerm + "; " 
+                            + cboSEra.SelectedItem.ToString() + ","
+                            + txtSYoungerAge.Text + "Ma - " 
+                            + txtSOlderAge.Text + "Ma";
+                        break;
+                    case "Age Range Event":
+                        txtAgeDisplay.Text = evtTerm + "; "
+                            + cboRYoungerEra.SelectedItem.ToString() + "," + txtRYoungerAge.Text + "Ma - "
+                            + cboROlderEra.SelectedItem.ToString() + "," + txtROlderAge.Text + "Ma";
+                        break;
+                }
             }
         #endregion
     #endregion

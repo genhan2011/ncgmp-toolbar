@@ -1604,6 +1604,11 @@ namespace ncgmpToolbar
     #endregion
 
     #region "Age Controls by Genhan"
+        private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
+        private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+        private Dictionary<string, string> m_EvtListDictionary = new Dictionary<string, string>();
+        private bool isUpdate4AgeEvent = false;
+
         private void initAgeTab()
         {
             initTimeScaleDictionary();
@@ -1620,6 +1625,8 @@ namespace ncgmpToolbar
 
                 initEmptySingleTimeScale();
                 initEmptyRangeTimeScale();
+
+                isUpdate4AgeEvent = false;
             }
 
             private void initEmptySingleTimeScale()
@@ -1643,6 +1650,13 @@ namespace ncgmpToolbar
             {
                 tabEvtEditor.SelectedTab = tabAgeEvent;
                 initEmptyAgeEventTab();
+                isUpdate4AgeEvent = false;
+            }
+
+            private void btnAgeChangeAccept_Click(object sender, EventArgs e)
+            {
+                if (liEvts.SelectedIndex == -1) { return; }
+                txtThisAge.Text = liEvts.SelectedItem.ToString();
             }
         #endregion
         
@@ -2195,33 +2209,31 @@ namespace ncgmpToolbar
 
                     m_TimeScaleDictionary.Add(aTimeScale.label, aTimeScale);
                 }
-            }
-
-            
-            private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
-            private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
-            private bool isUpdate4AgeEvent = false;
+            } 
 
             /// <summary>
             /// Add/update geologic event in m_GeologicEventsDictionary and events list box
             /// </summary>
-            /// <param name="sender"></param>
-            /// <param name="e"></param>
             private void btnEvtAccept_Click(object sender, EventArgs e)
             {
-                
-                if (m_theWorkspace == null) { return; }
+                /// <start> Validate the event inputs before save
+                if (m_theWorkspace == null) {
+                    MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; 
+                }
+                if (!validateEvtInputs()) { return; } 
 
                 if (txtAgeDisplay.Text == "") {
-                    MessageBox.Show("Press 'refresh' button to generate value!", "Error");
+                    MessageBox.Show("Please input Age Display value!", "Invalid Inputs", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                /// <end>
 
 
                 GeologicEventsAccess thisGeologicEventsAccess = new GeologicEventsAccess(m_theWorkspace);
                 string dataSrcID = commonFunctions.GetCurrentDataSourceID();
                 string thisKey;
-                GeologicEventsAccess.GeologicEvents thisGeologicEvents;
+                GeologicEventsAccess.GeologicEvents thisGeologicEvents = new GeologicEventsAccess.GeologicEvents();
 
                 if (isUpdate4AgeEvent)
                 {
@@ -2235,6 +2247,7 @@ namespace ncgmpToolbar
                                 cboEventType.SelectedItem.ToString(), txtSYoungerAge.Text, txtSOlderAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
+                            /// Add the new event into the dictionary
                             m_GeologicEventsDictionary.Add(thisKey, thisGeologicEvents);
                             break;
                         case "Age Range Event":
@@ -2242,15 +2255,21 @@ namespace ncgmpToolbar
                                 cboEventType.SelectedItem.ToString(), txtRYoungerAge.Text, txtROlderAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
+                            /// Add the new event into the dictionary
                             m_GeologicEventsDictionary.Add(thisKey, thisGeologicEvents);
                             break;
                     }
 
                     /// Add text item into event list box
                     liEvts.Items.Add(txtAgeDisplay.Text);
-                    /// Switch into event list tab
-                    tabEvtEditor.SelectedTab = tabAgeList;
+                    /// Add the new item into list box dictionary
+                    m_EvtListDictionary.Add(txtThisAge.Text, thisGeologicEvents.GeologicEvents_ID);
                 }
+
+                /// Switch into event list tab
+                tabEvtEditor.SelectedTab = tabAgeList;
+                /// Clear the event editing tab
+                initEmptyAgeEventTab();
             }
 
             private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
@@ -2299,12 +2318,12 @@ namespace ncgmpToolbar
             }
             
             /// <summary>
-            /// Generate the Age Display string
+            /// Generate the Age Display string in the event tab
             /// </summary>
-            /// <param name="sender"></param>
-            /// <param name="e"></param>
             private void btnAgeGen_Click(object sender, EventArgs e)
             {
+                if (!validateEvtInputs()) { return; }
+
                 txtAgeDisplay.Text = cboEvt.SelectedItem.ToString() + "-" + cboEventType.SelectedItem.ToString();
                 string evtTerm = cboEvt.SelectedItem.ToString();
 
@@ -2323,7 +2342,36 @@ namespace ncgmpToolbar
                         break;
                 }
             }
+
+            /// <summary> 
+            /// Validate the inputs
+            /// Return bool value to identify if the inputs are valid or not
+            /// <summary>
+            private bool validateEvtInputs()
+            {                
+                double youngerAge = 0.0, olderAge = 0.0;
+                switch (cboEventType.SelectedItem.ToString())
+                {
+                    case "Single Age Event":
+                        youngerAge = double.Parse(txtSYoungerAge.Text);
+                        olderAge = double.Parse(txtSOlderAge.Text);
+                        break;
+                    case "Age Range Event":
+                        youngerAge = double.Parse(txtRYoungerAge.Text);
+                        olderAge = double.Parse(txtROlderAge.Text);
+                        break;
+                }
+                if (youngerAge < olderAge)
+                {
+                    MessageBox.Show("Older Age cannot be younger than Younger Age!", "Invalid Inputs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                return true;
+            }
         #endregion
+
+
     #endregion
     }
 }

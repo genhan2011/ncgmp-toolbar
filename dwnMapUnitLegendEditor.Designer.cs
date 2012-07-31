@@ -1065,7 +1065,8 @@
             // 
             // grpEvtList
             // 
-            this.grpEvtList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.grpEvtList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.grpEvtList.Controls.Add(this.liEvts);
             this.grpEvtList.Location = new System.Drawing.Point(7, 88);
@@ -1077,7 +1078,8 @@
             // 
             // liEvts
             // 
-            this.liEvts.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.liEvts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.liEvts.FormattingEnabled = true;
             this.liEvts.Location = new System.Drawing.Point(7, 20);
@@ -1146,6 +1148,7 @@
             this.btnAgeChangeAccept.Name = "btnAgeChangeAccept";
             this.btnAgeChangeAccept.Size = new System.Drawing.Size(23, 22);
             this.btnAgeChangeAccept.Text = "Change the Age Display";
+            this.btnAgeChangeAccept.Click += new System.EventHandler(this.btnAgeChangeAccept_Click);
             // 
             // tabAgeEvent
             // 

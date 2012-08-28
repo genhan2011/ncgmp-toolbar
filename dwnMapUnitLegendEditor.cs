@@ -1605,7 +1605,8 @@ namespace ncgmpToolbar
 
     #region "Age Controls by Genhan"
         private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
-        private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+        //private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+
         private Dictionary<string, string> m_EvtListDictionary = new Dictionary<string, string>();
         private bool isUpdate4AgeEvent = false;
 
@@ -1651,12 +1652,73 @@ namespace ncgmpToolbar
                 tabEvtEditor.SelectedTab = tabAgeEvent;
                 initEmptyAgeEventTab();
                 isUpdate4AgeEvent = false;
+                liEvts.SelectedIndex = -1;
             }
 
             private void btnAgeChangeAccept_Click(object sender, EventArgs e)
             {
                 if (liEvts.SelectedIndex == -1) { return; }
                 txtThisAge.Text = liEvts.SelectedItem.ToString();
+
+                if (txtMapUnitAbbreviation.Text == null) { return; }
+
+            }
+
+            private void btnAgeDelete_Click(object sender, EventArgs e)
+            {
+                string selectedString = liEvts.SelectedItem.ToString();
+                /// Remove the selected item from the event list box
+                liEvts.Items.Remove(liEvts.SelectedItem);
+
+                /// Remove the selected item from the list box dictionary
+                m_GeologicEventsDictionary.Remove(m_EvtListDictionary[selectedString]);
+                m_EvtListDictionary.Remove(selectedString);
+            }
+
+            private void liEvts_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                if (liEvts.SelectedIndex == -1)
+                {
+                    if (isUpdate4AgeEvent) { return; }
+                    initEmptyAgeEventTab();
+                }
+                else
+                {
+                    setAgeEventTabContent(m_EvtListDictionary[liEvts.SelectedItem.ToString()]);
+                    isUpdate4AgeEvent = true;
+                }
+
+            }
+            
+            /// <summary>
+            /// Display the attributtes of the selected item on the event tab
+            /// </summary>
+            /// <param name="eventId">The selected event item's id</param>
+            private void setAgeEventTabContent(string eventId)
+            {
+                GeologicEventsAccess.GeologicEvents thisGeologicEvents = m_GeologicEventsDictionary[eventId];
+
+                txtAgeDisplay.Text = thisGeologicEvents.AgeDisplay;
+                cboEvt.SelectedItem = thisGeologicEvents.Event;
+                txtNotes.Text = thisGeologicEvents.Notes;
+
+                /// Identify if this event is single age event or age range event
+                if (thisGeologicEvents.AgeOlderTerm == thisGeologicEvents.AgeYoungerTerm)
+                {
+                    cboEventType.SelectedItem = "Single Age Event";
+                    cboSEra.SelectedItem = thisGeologicEvents.AgeOlderTerm;
+                    txtSYoungerAge.Text = thisGeologicEvents.AgeYoungerValue;
+                    txtSOlderAge.Text = thisGeologicEvents.AgeOlderValue;
+                }
+                else
+                {
+                    cboEventType.SelectedItem = "Age Range Event";
+                    cboRYoungerEra.SelectedItem = thisGeologicEvents.AgeYoungerTerm;
+                    cboROlderEra.SelectedItem = thisGeologicEvents.AgeOlderTerm;
+                    txtRYoungerAge.Text = thisGeologicEvents.AgeYoungerValue;
+                    txtROlderAge.Text = thisGeologicEvents.AgeOlderValue;
+                }
+
             }
         #endregion
         
@@ -2237,6 +2299,50 @@ namespace ncgmpToolbar
 
                 if (isUpdate4AgeEvent)
                 {
+                    GeologicEventsAccess.GeologicEvents selectedEvent = m_GeologicEventsDictionary[m_EvtListDictionary[liEvts.SelectedItem.ToString()]];
+                    
+                    /// Remove the old age display text from the age tab
+                    liEvts.Items.Remove(selectedEvent.AgeDisplay);
+                    /// Remove the old connection between list item and age
+                    m_EvtListDictionary.Remove(selectedEvent.AgeDisplay);
+
+                    if (txtThisAge.Text == selectedEvent.AgeDisplay) { txtThisAge.Clear(); }
+
+                    selectedEvent.AgeDisplay = txtAgeDisplay.Text;
+                    selectedEvent.Event = cboEvt.SelectedItem.ToString();
+                    selectedEvent.TimeScale = "http://resource.geosciml.org/classifierscheme/ics/ischart/2009";
+                    selectedEvent.Notes = txtNotes.Text;
+
+                    switch (cboEventType.SelectedItem.ToString())
+                    {
+                        case "Single Age Event":
+                            selectedEvent.AgeYoungerTerm = cboSEra.SelectedItem.ToString();
+                            selectedEvent.AgeOlderTerm = cboSEra.SelectedItem.ToString();
+                            selectedEvent.AgeYoungerValue = txtSYoungerAge.Text;
+                            selectedEvent.AgeOlderValue = txtSOlderAge.Text;
+                            break;
+                        case "Age Range Event":
+                            selectedEvent.AgeYoungerTerm = cboRYoungerEra.SelectedItem.ToString();
+                            selectedEvent.AgeOlderTerm = cboROlderEra.SelectedItem.ToString();
+                            selectedEvent.AgeYoungerValue = txtRYoungerAge.Text;
+                            selectedEvent.AgeOlderValue = txtROlderAge.Text;
+                            break;
+                    }
+
+                    m_GeologicEventsDictionary.Remove(selectedEvent.GeologicEvents_ID);
+                    m_GeologicEventsDictionary.Add(selectedEvent.GeologicEvents_ID, selectedEvent);
+
+                    if (m_EvtListDictionary.ContainsKey(txtAgeDisplay.Text))
+                    {
+                        MessageBox.Show("This age display already exists!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        /// Add text item into event list box
+                        liEvts.Items.Add(selectedEvent.AgeDisplay);
+                        /// Add the new item into list box dictionary
+                        m_EvtListDictionary.Add(selectedEvent.AgeDisplay, selectedEvent.GeologicEvents_ID);
+                    } 
                 }
                 else
                 {
@@ -2244,7 +2350,7 @@ namespace ncgmpToolbar
                     {
                         case "Single Age Event":
                             thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboSEra.SelectedItem.ToString(), cboSEra.SelectedItem.ToString(),
-                                cboEventType.SelectedItem.ToString(), txtSYoungerAge.Text, txtSOlderAge.Text, dataSrcID, txtNotes.Text);
+                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtSYoungerAge.Text, txtSOlderAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
                             /// Add the new event into the dictionary
@@ -2252,7 +2358,7 @@ namespace ncgmpToolbar
                             break;
                         case "Age Range Event":
                             thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboRYoungerEra.SelectedItem.ToString(), cboROlderEra.SelectedItem.ToString(),
-                                cboEventType.SelectedItem.ToString(), txtRYoungerAge.Text, txtROlderAge.Text, dataSrcID, txtNotes.Text);
+                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtRYoungerAge.Text, txtROlderAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
                             /// Add the new event into the dictionary
@@ -2260,10 +2366,17 @@ namespace ncgmpToolbar
                             break;
                     }
 
-                    /// Add text item into event list box
-                    liEvts.Items.Add(txtAgeDisplay.Text);
-                    /// Add the new item into list box dictionary
-                    m_EvtListDictionary.Add(txtThisAge.Text, thisGeologicEvents.GeologicEvents_ID);
+                    if (m_EvtListDictionary.ContainsKey(txtAgeDisplay.Text))
+                    {
+                        MessageBox.Show("This age display already exists!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        /// Add text item into event list box
+                        liEvts.Items.Add(txtAgeDisplay.Text);
+                        /// Add the new item into list box dictionary
+                        m_EvtListDictionary.Add(txtAgeDisplay.Text, thisGeologicEvents.GeologicEvents_ID);
+                    }                   
                 }
 
                 /// Switch into event list tab
@@ -2371,7 +2484,13 @@ namespace ncgmpToolbar
             }
         #endregion
 
+        private void btnSaveAge_Click(object sender, EventArgs e)
+        {
+
+        }
+
 
     #endregion
+
     }
 }

@@ -108,6 +108,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             newGeologicEvents.AgeOlderTerm= AgeOlderTerm;
             newGeologicEvents.TimeScale = TimeScale;
             newGeologicEvents.AgeYoungerValue = AgeYoungerValue;
+            newGeologicEvents.AgeOlderValue = AgeOlderValue;
             newGeologicEvents.DataSourceID = DataSourceID;
             newGeologicEvents.Notes = Notes;
             newGeologicEvents.RequiresUpdate = false;

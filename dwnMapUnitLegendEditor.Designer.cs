@@ -75,8 +75,8 @@
             this.tabEvtEditor = new System.Windows.Forms.TabControl();
             this.tabAgeList = new System.Windows.Forms.TabPage();
             this.toolStrip5 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+            this.btnSaveAge = new System.Windows.Forms.ToolStripButton();
+            this.btnCancelAge = new System.Windows.Forms.ToolStripButton();
             this.grpEvtList = new System.Windows.Forms.GroupBox();
             this.liEvts = new System.Windows.Forms.ListBox();
             this.grpThisAge = new System.Windows.Forms.GroupBox();
@@ -1032,36 +1032,37 @@
             // 
             this.toolStrip5.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.toolStrip5.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton3,
-            this.toolStripButton4});
+            this.btnSaveAge,
+            this.btnCancelAge});
             this.toolStrip5.Location = new System.Drawing.Point(3, 242);
             this.toolStrip5.Name = "toolStrip5";
             this.toolStrip5.Size = new System.Drawing.Size(278, 25);
             this.toolStrip5.TabIndex = 6;
             this.toolStrip5.Text = "toolStrip1";
             // 
-            // toolStripButton3
+            // btnSaveAge
             // 
-            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButton3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
-            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
-            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(39, 22);
-            this.toolStripButton3.Text = "Save";
-            this.toolStripButton3.ToolTipText = "Save";
+            this.btnSaveAge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnSaveAge.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnSaveAge.Image = ((System.Drawing.Image)(resources.GetObject("btnSaveAge.Image")));
+            this.btnSaveAge.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSaveAge.Name = "btnSaveAge";
+            this.btnSaveAge.Size = new System.Drawing.Size(39, 22);
+            this.btnSaveAge.Text = "Save";
+            this.btnSaveAge.ToolTipText = "Save";
+            this.btnSaveAge.Click += new System.EventHandler(this.btnSaveAge_Click);
             // 
-            // toolStripButton4
+            // btnCancelAge
             // 
-            this.toolStripButton4.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButton4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
-            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(48, 22);
-            this.toolStripButton4.Text = "Cancel";
-            this.toolStripButton4.ToolTipText = "Cancel";
+            this.btnCancelAge.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnCancelAge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnCancelAge.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnCancelAge.Image = ((System.Drawing.Image)(resources.GetObject("btnCancelAge.Image")));
+            this.btnCancelAge.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnCancelAge.Name = "btnCancelAge";
+            this.btnCancelAge.Size = new System.Drawing.Size(48, 22);
+            this.btnCancelAge.Text = "Cancel";
+            this.btnCancelAge.ToolTipText = "Cancel";
             // 
             // grpEvtList
             // 
@@ -1086,6 +1087,7 @@
             this.liEvts.Name = "liEvts";
             this.liEvts.Size = new System.Drawing.Size(258, 121);
             this.liEvts.TabIndex = 0;
+            this.liEvts.SelectedIndexChanged += new System.EventHandler(this.liEvts_SelectedIndexChanged);
             // 
             // grpThisAge
             // 
@@ -1139,6 +1141,7 @@
             this.btnAgeDelete.Name = "btnAgeDelete";
             this.btnAgeDelete.Size = new System.Drawing.Size(23, 22);
             this.btnAgeDelete.Text = "Delete the Selected Age Event";
+            this.btnAgeDelete.Click += new System.EventHandler(this.btnAgeDelete_Click);
             // 
             // btnAgeChangeAccept
             // 
@@ -2354,8 +2357,8 @@
         private System.Windows.Forms.GroupBox grpNotes;
         private System.Windows.Forms.TextBox txtNotes;
         private System.Windows.Forms.ToolStrip toolStrip5;
-        private System.Windows.Forms.ToolStripButton toolStripButton3;
-        private System.Windows.Forms.ToolStripButton toolStripButton4;
+        private System.Windows.Forms.ToolStripButton btnSaveAge;
+        private System.Windows.Forms.ToolStripButton btnCancelAge;
         private System.Windows.Forms.GroupBox grpEvtList;
         private System.Windows.Forms.ListBox liEvts;
         private System.Windows.Forms.GroupBox grpThisAge;

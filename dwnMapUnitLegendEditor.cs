@@ -74,8 +74,7 @@ namespace ncgmpToolbar
                 initLithListBox(m_theWorkspace, trvLegendItems.SelectedNode.Name, false);
             }
 
-            initAgeTab();
-          
+            initEmptyAgeEventTab();
         }
 
         /// <summary>
@@ -389,6 +388,9 @@ namespace ncgmpToolbar
 
             // Get the related standard lithology entry
             initLithListBox(m_theWorkspace, thisDmuEntry.MapUnit, chkIsHeading.Checked);
+
+            /// Initialize the age tab
+            initAgeTab(thisDmuEntry.MapUnit);
         }
 
         private void tlsbtnRefreshLegend_Click(object sender, EventArgs e)
@@ -401,6 +403,8 @@ namespace ncgmpToolbar
             // Update the Legend title
             sysInfo sysInfoForm = new sysInfo(m_theWorkspace);
             tlslblLegendName.Text = sysInfoForm.ProjName;
+
+            initAgeTab(txtMapUnitAbbreviation.Text);
         }
 
     #region "Drag and Drop Stuff"
@@ -1610,15 +1614,85 @@ namespace ncgmpToolbar
         private Dictionary<string, string> m_EvtListDictionary = new Dictionary<string, string>();
         private bool isUpdate4AgeEvent = false;
 
-        private void initAgeTab()
+        private void initAgeTab(string mapUnit)
         {
+            /// Set the dictionary to search era term, its start time and end time
             initTimeScaleDictionary();
-            initEmptyAgeEventTab();
+
+            if (mapUnit == null) { initEmptyAgeEventTab(); }
+            else {
+                initEmptyAgeEventTab();
+                initAgeEventTab(mapUnit); 
+            }
+        }
+
+        /// <summary>
+        /// Set values for the age event tabs
+        /// </summary>
+        private void initAgeEventTab(string mapUnit)
+        {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            /// Connect with the Extended Attribute table
+            ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
+            /// Search for the extended attributes record for this map unit
+            extAttrAccess.AddExtendedAttributes("OwnerID = '" + mapUnit + "'");
+            string vLinkId = null;
+            if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
+            {
+                ExtendedAttributesAccess.ExtendedAttributes thisExtAttrEntry = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+                vLinkId = thisExtAttrEntry.ValueLinkID;
+            }
+
+            /// Connect with the Geologic Event table
+            GeologicEventsAccess geoEvtAccess = new GeologicEventsAccess(m_theWorkspace);
+
+            /// Search for the geologic event for this map unit
+            if (vLinkId != null)
+            {
+                geoEvtAccess.AddGeologicEvents("GeologicEvents_ID = '" + vLinkId + "'");
+                if (geoEvtAccess.GeologicEventsDictionary.Count != 0)
+                {
+                    GeologicEventsAccess.GeologicEvents thisGeologicEvents = geoEvtAccess.GeologicEventsDictionary.First().Value;
+                    /// Display the age display for this map unit 
+                    txtThisAge.Text = thisGeologicEvents.AgeDisplay;
+                }
+            }
+
+            try
+            {
+                /// Pull out all the records from the Geologic Events table
+                geoEvtAccess = new GeologicEventsAccess(m_theWorkspace); /// Create a new geologic events access object
+                geoEvtAccess.AddGeologicEvents(); /// Search for all the events                                                
+
+                liEvts.Items.Clear();
+                m_GeologicEventsDictionary.Clear();
+                m_EvtListDictionary.Clear();
+
+                m_GeologicEventsDictionary = geoEvtAccess.GeologicEventsDictionary; /// Replace the old geologic events dictionary
+
+                /// Add the age displays into the list box
+                foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> aGeologicEventEntry in m_GeologicEventsDictionary)
+                {
+                    string ageDisplay = aGeologicEventEntry.Value.AgeDisplay;
+                    liEvts.Items.Add(ageDisplay);
+                    m_EvtListDictionary.Add(ageDisplay, aGeologicEventEntry.Key); /// Add new connection between age diaplay and event id
+                }
+                
+            }
+            catch (Exception e) { throw (e); }
         }
 
         #region "Initialize the empty tabs"
             private void initEmptyAgeEventTab()
             {
+                txtThisAge.Clear();
+                liEvts.SelectedIndex = -1;
+
                 cboEventType.SelectedIndex = 0;
                 txtAgeDisplay.Clear();
                 cboEvt.SelectedIndex = -1;
@@ -1729,9 +1803,10 @@ namespace ncgmpToolbar
                 public double startTime;
                 public double endTime;
             }
-            private Dictionary<string, TimeScale> m_TimeScaleDictionary = new Dictionary<string, TimeScale>();    
+            private Dictionary<string, TimeScale> m_TimeScaleDictionary = new Dictionary<string, TimeScale>();  /// Timescale dictionary with era term, start time and end time    
             private void initTimeScaleDictionary()
             {
+                if (m_TimeScaleDictionary.Count != 0) { return; }
                 string[] labels = {"Holocene Epoch",
                                     "Quaternary Period",
                                     "Cainozoic Era",

@@ -2583,7 +2583,8 @@ namespace ncgmpToolbar
                 return;
             }
 
-            /// <start> Save Geologic Events changes --------------------------------------------------------------------
+            /// ---------------------------------------------------------------------------------------------------------
+            /// <start> Settings to save geologic events changes --------------------------------------------------------
             /// Connect with the Geologic Events table
             GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
             geoEvtsAccess.AddGeologicEvents();
@@ -2603,17 +2604,30 @@ namespace ncgmpToolbar
             }
 
             geoEvtsAccess.GeologicEventsDictionary = m_GeologicEventsDictionary;
-            geoEvtsAccess.SaveGeologicEvents();
-            ///<end> ----------------------------------------------------------------------------------------------------
+            //geoEvtsAccess.SaveGeologicEvents();
 
-            /*
+            string thisValueLinkId = null;
+
+            /// Reset variable m_GeologicEventsDictionary and m_EvtListDictionary
+            m_GeologicEventsDictionary = geoEvtsAccess.GeologicEventsDictionary;
+            m_EvtListDictionary.Clear();
+
+            foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> aGeologicEventsEntry in geoEvtsAccess.GeologicEventsDictionary)
+            {
+                if (aGeologicEventsEntry.Value.AgeDisplay == txtThisAge.Text)
+                { thisValueLinkId = aGeologicEventsEntry.Value.GeologicEvents_ID; }
+                m_EvtListDictionary.Add(aGeologicEventsEntry.Value.AgeDisplay, aGeologicEventsEntry.Key);
+            }
+            /// <end> ---------------------------------------------------------------------------------------------------
+            /// ---------------------------------------------------------------------------------------------------------
+
+            /// ---------------------------------------------------------------------------------------------------------
+            /// <start> Settings to save extended attributes changes-----------------------------------------------------
             /// connect with the Extended Attributes table
             ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
 
-            if (txtThisAge.Text.Length != 0 && txtMapUnitAbbreviation.Text.Length != 0) 
-            {
-                string thisValueLinkId = m_EvtListDictionary[txtThisAge.Text];
-
+            if (thisValueLinkId != null) 
+            {   
                 extAttrAccess.AddExtendedAttributes(("OwnerID = '" + txtMapUnitAbbreviation.Text + "'"));
                 if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
                 {
@@ -2627,9 +2641,13 @@ namespace ncgmpToolbar
                         commonFunctions.GetCurrentDataSourceID(), txtNotes.Text);
                 }
             }
+            /// <end> ---------------------------------------------------------------------------------------------------
+            /// ---------------------------------------------------------------------------------------------------------
 
+            /// Save data into Extended Attributes table and Geologic Events table
+            /// For some reason, we have to run SaveExtendedAttributes() before SaveGeologicEvents()
             extAttrAccess.SaveExtendedAttributes();
-            */
+            geoEvtsAccess.SaveGeologicEvents();
         }
 
     #endregion

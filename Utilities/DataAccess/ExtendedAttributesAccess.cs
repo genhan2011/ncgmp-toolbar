@@ -137,7 +137,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             IEditor theEditor = ArcMap.Editor;
             if (theEditor.EditState == esriEditState.esriStateEditing) { theEditor.StartEditing(m_theWorkspace); }
             theEditor.StartOperation();
-
+            
             try
             {
                 string updateWhereClause = "ExtendedAttributes_ID = '";
@@ -203,6 +203,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
                 theEditor.StopOperation("Update ExtendedAttributes");
             }
             catch { theEditor.StopOperation("ExtendedAttributes Management Failure"); }
+         
         }
 
         public void DeleteStandardLithology(ExtendedAttributes theExtendedAttributes)

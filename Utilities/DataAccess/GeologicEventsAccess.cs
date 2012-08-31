@@ -181,7 +181,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
                 if (updateWhereClause == "GeologicEvents_ID = '") { return; }
 
                 theEditor.StartOperation();
-                updateWhereClause = updateWhereClause.Remove(updateWhereClause.Length - 28);
+                updateWhereClause = updateWhereClause.Remove(updateWhereClause.Length - 25);
 
                 IQueryFilter QF = new QueryFilterClass();
                 QF.WhereClause = updateWhereClause;

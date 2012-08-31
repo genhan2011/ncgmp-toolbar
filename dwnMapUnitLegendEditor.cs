@@ -1609,7 +1609,7 @@ namespace ncgmpToolbar
 
     #region "Age Controls by Genhan"
         private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
-        //private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+        //private ExtendedAttributesAccess.ExtendedAttributes m_ExtendedAttributes = new ExtendedAttributesAccess.ExtendedAttributes();
 
         private Dictionary<string, string> m_EvtListDictionary = new Dictionary<string, string>();
         private bool isUpdate4AgeEvent = false;
@@ -1618,6 +1618,7 @@ namespace ncgmpToolbar
         {
             /// Set the dictionary to search era term, its start time and end time
             initTimeScaleDictionary();
+            if (liEvts.Items.Count == 0) { initAgeEventsListbox(); }
 
             if (mapUnit == null) { initEmptyAgeEventTab(); }
             else {
@@ -1628,6 +1629,7 @@ namespace ncgmpToolbar
 
         /// <summary>
         /// Set values for the age event tabs
+        /// The values are from Extended Attributes table and Geologic Events table
         /// </summary>
         private void initAgeEventTab(string mapUnit)
         {
@@ -1644,36 +1646,45 @@ namespace ncgmpToolbar
             string vLinkId = null;
             if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
             {
-                ExtendedAttributesAccess.ExtendedAttributes thisExtAttrEntry = extAttrAccess.ExtendedAttributesDictionary.First().Value;
-                vLinkId = thisExtAttrEntry.ValueLinkID;
+                ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+                vLinkId = thisExtendedAttributes.ValueLinkID;
             }
 
             /// Connect with the Geologic Event table
-            GeologicEventsAccess geoEvtAccess = new GeologicEventsAccess(m_theWorkspace);
+            GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
 
             /// Search for the geologic event for this map unit
             if (vLinkId != null)
             {
-                geoEvtAccess.AddGeologicEvents("GeologicEvents_ID = '" + vLinkId + "'");
-                if (geoEvtAccess.GeologicEventsDictionary.Count != 0)
+                geoEvtsAccess.AddGeologicEvents("GeologicEvents_ID = '" + vLinkId + "'");
+                if (geoEvtsAccess.GeologicEventsDictionary.Count != 0)
                 {
-                    GeologicEventsAccess.GeologicEvents thisGeologicEvents = geoEvtAccess.GeologicEventsDictionary.First().Value;
+                    GeologicEventsAccess.GeologicEvents thisGeologicEvents = geoEvtsAccess.GeologicEventsDictionary.First().Value;
                     /// Display the age display for this map unit 
                     txtThisAge.Text = thisGeologicEvents.AgeDisplay;
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Add values to the Geologic Events Tab
+        /// </summary>
+        private void initAgeEventsListbox()
+        {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             try
             {
                 /// Pull out all the records from the Geologic Events table
-                geoEvtAccess = new GeologicEventsAccess(m_theWorkspace); /// Create a new geologic events access object
-                geoEvtAccess.AddGeologicEvents(); /// Search for all the events                                                
+                GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace); /// Create a new geologic events access object
+                geoEvtsAccess.AddGeologicEvents(); /// Search for all the events                                                
 
-                liEvts.Items.Clear();
-                m_GeologicEventsDictionary.Clear();
-                m_EvtListDictionary.Clear();
-
-                m_GeologicEventsDictionary = geoEvtAccess.GeologicEventsDictionary; /// Replace the old geologic events dictionary
+                m_GeologicEventsDictionary = geoEvtsAccess.GeologicEventsDictionary; /// Replace the old geologic events dictionary
 
                 /// Add the age displays into the list box
                 foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> aGeologicEventEntry in m_GeologicEventsDictionary)
@@ -1682,7 +1693,7 @@ namespace ncgmpToolbar
                     liEvts.Items.Add(ageDisplay);
                     m_EvtListDictionary.Add(ageDisplay, aGeologicEventEntry.Key); /// Add new connection between age diaplay and event id
                 }
-                
+
             }
             catch (Exception e) { throw (e); }
         }
@@ -2561,9 +2572,65 @@ namespace ncgmpToolbar
 
         private void btnSaveAge_Click(object sender, EventArgs e)
         {
-
+            saveGeologicEventsTable();
         }
 
+        private void saveGeologicEventsTable()
+        {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            /// <start> Save Geologic Events changes --------------------------------------------------------------------
+            /// Connect with the Geologic Events table
+            GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
+            geoEvtsAccess.AddGeologicEvents();
+
+            Dictionary<string, GeologicEventsAccess.GeologicEvents> deleteGeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
+            foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> anOldGeologicEventsEntry in geoEvtsAccess.GeologicEventsDictionary)
+            {
+                /// Identify if the old record still exits in the new dictionary
+                /// If not, delete this record
+                if (!m_GeologicEventsDictionary.ContainsKey(anOldGeologicEventsEntry.Key))
+                { deleteGeologicEventsDictionary.Add(anOldGeologicEventsEntry.Key, anOldGeologicEventsEntry.Value); }
+            }
+            foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> anDeleteGeologicEventsEntry in deleteGeologicEventsDictionary)
+            {
+                if (txtThisAge.Text == anDeleteGeologicEventsEntry.Value.AgeDisplay) { txtThisAge.Clear(); }
+                geoEvtsAccess.DeleteGeologicEvents(anDeleteGeologicEventsEntry.Value);
+            }
+
+            geoEvtsAccess.GeologicEventsDictionary = m_GeologicEventsDictionary;
+            geoEvtsAccess.SaveGeologicEvents();
+            ///<end> ----------------------------------------------------------------------------------------------------
+
+            /*
+            /// connect with the Extended Attributes table
+            ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
+
+            if (txtThisAge.Text.Length != 0 && txtMapUnitAbbreviation.Text.Length != 0) 
+            {
+                string thisValueLinkId = m_EvtListDictionary[txtThisAge.Text];
+
+                extAttrAccess.AddExtendedAttributes(("OwnerID = '" + txtMapUnitAbbreviation.Text + "'"));
+                if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
+                {
+                    ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+                    thisExtendedAttributes.ValueLinkID = thisValueLinkId;
+                    extAttrAccess.UpdateExtendedAttributes(thisExtendedAttributes);
+                }
+                else
+                {
+                    extAttrAccess.NewExtendedAttributes(txtMapUnitAbbreviation.Text, null, null, null, thisValueLinkId, null,
+                        commonFunctions.GetCurrentDataSourceID(), txtNotes.Text);
+                }
+            }
+
+            extAttrAccess.SaveExtendedAttributes();
+            */
+        }
 
     #endregion
 

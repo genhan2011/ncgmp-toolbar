@@ -135,7 +135,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
             int notesFld = m_ExtendedAttributesTable.FindField("Notes");
 
             IEditor theEditor = ArcMap.Editor;
-            if (theEditor.EditState == esriEditState.esriStateEditing) { theEditor.StartEditing(m_theWorkspace); }
+            if (theEditor.EditState == esriEditState.esriStateNotEditing) { theEditor.StartEditing(m_theWorkspace); }
             theEditor.StartOperation();
             
             try

@@ -2618,11 +2618,13 @@ namespace ncgmpToolbar
                 { thisValueLinkId = aGeologicEventsEntry.Value.GeologicEvents_ID; }
                 m_EvtListDictionary.Add(aGeologicEventsEntry.Value.AgeDisplay, aGeologicEventsEntry.Key);
             }
+
+            geoEvtsAccess.SaveGeologicEvents();
             /// <end> ---------------------------------------------------------------------------------------------------
             /// ---------------------------------------------------------------------------------------------------------
 
             /// ---------------------------------------------------------------------------------------------------------
-            /// <start> Settings to save extended attributes changes-----------------------------------------------------
+            /// <start> Settings to save extended attributes changes ----------------------------------------------------
             /// connect with the Extended Attributes table
             ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
 
@@ -2633,6 +2635,7 @@ namespace ncgmpToolbar
                 {
                     ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
                     thisExtendedAttributes.ValueLinkID = thisValueLinkId;
+                    thisExtendedAttributes.DataSourceID = commonFunctions.GetCurrentDataSourceID();
                     extAttrAccess.UpdateExtendedAttributes(thisExtendedAttributes);
                 }
                 else
@@ -2641,13 +2644,11 @@ namespace ncgmpToolbar
                         commonFunctions.GetCurrentDataSourceID(), txtNotes.Text);
                 }
             }
+
+            extAttrAccess.SaveExtendedAttributes();
             /// <end> ---------------------------------------------------------------------------------------------------
             /// ---------------------------------------------------------------------------------------------------------
-
-            /// Save data into Extended Attributes table and Geologic Events table
-            /// For some reason, we have to run SaveExtendedAttributes() before SaveGeologicEvents()
-            extAttrAccess.SaveExtendedAttributes();
-            geoEvtsAccess.SaveGeologicEvents();
+            
         }
 
     #endregion

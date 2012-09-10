@@ -93,8 +93,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.txtROlderAge = new System.Windows.Forms.TextBox();
             this.txtRYoungerAge = new System.Windows.Forms.TextBox();
+            this.txtROlderAge = new System.Windows.Forms.TextBox();
             this.btnAgeGen = new System.Windows.Forms.Button();
             this.cboEvt = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -104,8 +104,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtSOlderAge = new System.Windows.Forms.TextBox();
             this.txtSYoungerAge = new System.Windows.Forms.TextBox();
+            this.txtSOlderAge = new System.Windows.Forms.TextBox();
             this.cboSEra = new System.Windows.Forms.ComboBox();
             this.toolStrip3 = new System.Windows.Forms.ToolStrip();
             this.cboEventType = new System.Windows.Forms.ToolStripComboBox();
@@ -1086,6 +1086,7 @@
             this.liEvts.Location = new System.Drawing.Point(7, 20);
             this.liEvts.Name = "liEvts";
             this.liEvts.Size = new System.Drawing.Size(258, 121);
+            this.liEvts.Sorted = true;
             this.liEvts.TabIndex = 0;
             this.liEvts.SelectedIndexChanged += new System.EventHandler(this.liEvts_SelectedIndexChanged);
             // 
@@ -1182,8 +1183,8 @@
             this.grpRangeTimeScale.Controls.Add(this.label8);
             this.grpRangeTimeScale.Controls.Add(this.label11);
             this.grpRangeTimeScale.Controls.Add(this.label12);
-            this.grpRangeTimeScale.Controls.Add(this.txtROlderAge);
             this.grpRangeTimeScale.Controls.Add(this.txtRYoungerAge);
+            this.grpRangeTimeScale.Controls.Add(this.txtROlderAge);
             this.grpRangeTimeScale.Location = new System.Drawing.Point(6, 92);
             this.grpRangeTimeScale.Name = "grpRangeTimeScale";
             this.grpRangeTimeScale.Size = new System.Drawing.Size(270, 104);
@@ -1575,18 +1576,18 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(5, 52);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(54, 13);
+            this.label13.Size = new System.Drawing.Size(62, 13);
             this.label13.TabIndex = 10;
-            this.label13.Text = "Older Era:";
+            this.label13.Text = "Older Term:";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(5, 25);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(69, 13);
+            this.label8.Size = new System.Drawing.Size(77, 13);
             this.label8.TabIndex = 9;
-            this.label8.Text = "Younger Era:";
+            this.label8.Text = "Younger Term:";
             // 
             // label11
             // 
@@ -1594,33 +1595,33 @@
             this.label11.AutoSize = true;
             this.label11.Location = new System.Drawing.Point(148, 79);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(57, 13);
+            this.label11.Size = new System.Drawing.Size(49, 13);
             this.label11.TabIndex = 6;
-            this.label11.Text = "Older Age:";
+            this.label11.Text = "Min Age:";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(5, 79);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(72, 13);
+            this.label12.Size = new System.Drawing.Size(52, 13);
             this.label12.TabIndex = 5;
-            this.label12.Text = "Younger Age:";
-            // 
-            // txtROlderAge
-            // 
-            this.txtROlderAge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtROlderAge.Location = new System.Drawing.Point(211, 76);
-            this.txtROlderAge.Name = "txtROlderAge";
-            this.txtROlderAge.Size = new System.Drawing.Size(52, 20);
-            this.txtROlderAge.TabIndex = 3;
+            this.label12.Text = "Max Age:";
             // 
             // txtRYoungerAge
             // 
-            this.txtRYoungerAge.Location = new System.Drawing.Point(83, 76);
+            this.txtRYoungerAge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtRYoungerAge.Location = new System.Drawing.Point(211, 76);
             this.txtRYoungerAge.Name = "txtRYoungerAge";
             this.txtRYoungerAge.Size = new System.Drawing.Size(52, 20);
-            this.txtRYoungerAge.TabIndex = 1;
+            this.txtRYoungerAge.TabIndex = 3;
+            // 
+            // txtROlderAge
+            // 
+            this.txtROlderAge.Location = new System.Drawing.Point(83, 76);
+            this.txtROlderAge.Name = "txtROlderAge";
+            this.txtROlderAge.Size = new System.Drawing.Size(52, 20);
+            this.txtROlderAge.TabIndex = 1;
             // 
             // btnAgeGen
             // 
@@ -1744,8 +1745,8 @@
             this.grpSingleTimeScale.Controls.Add(this.label5);
             this.grpSingleTimeScale.Controls.Add(this.label2);
             this.grpSingleTimeScale.Controls.Add(this.label1);
-            this.grpSingleTimeScale.Controls.Add(this.txtSOlderAge);
             this.grpSingleTimeScale.Controls.Add(this.txtSYoungerAge);
+            this.grpSingleTimeScale.Controls.Add(this.txtSOlderAge);
             this.grpSingleTimeScale.Controls.Add(this.cboSEra);
             this.grpSingleTimeScale.Location = new System.Drawing.Point(6, 104);
             this.grpSingleTimeScale.Name = "grpSingleTimeScale";
@@ -1760,9 +1761,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 26);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.Size = new System.Drawing.Size(34, 13);
             this.label5.TabIndex = 9;
-            this.label5.Text = "Era Term:";
+            this.label5.Text = "Term:";
             // 
             // label2
             // 
@@ -1770,33 +1771,33 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(149, 53);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(57, 13);
+            this.label2.Size = new System.Drawing.Size(49, 13);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Older Age:";
+            this.label2.Text = "Min Age:";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 53);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
+            this.label1.Size = new System.Drawing.Size(52, 13);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Younger Age:";
-            // 
-            // txtSOlderAge
-            // 
-            this.txtSOlderAge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSOlderAge.Location = new System.Drawing.Point(211, 50);
-            this.txtSOlderAge.Name = "txtSOlderAge";
-            this.txtSOlderAge.Size = new System.Drawing.Size(52, 20);
-            this.txtSOlderAge.TabIndex = 3;
+            this.label1.Text = "Max Age:";
             // 
             // txtSYoungerAge
             // 
-            this.txtSYoungerAge.Location = new System.Drawing.Point(84, 50);
+            this.txtSYoungerAge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSYoungerAge.Location = new System.Drawing.Point(211, 50);
             this.txtSYoungerAge.Name = "txtSYoungerAge";
             this.txtSYoungerAge.Size = new System.Drawing.Size(52, 20);
-            this.txtSYoungerAge.TabIndex = 1;
+            this.txtSYoungerAge.TabIndex = 3;
+            // 
+            // txtSOlderAge
+            // 
+            this.txtSOlderAge.Location = new System.Drawing.Point(84, 50);
+            this.txtSOlderAge.Name = "txtSOlderAge";
+            this.txtSOlderAge.Size = new System.Drawing.Size(52, 20);
+            this.txtSOlderAge.TabIndex = 1;
             // 
             // cboSEra
             // 
@@ -2350,8 +2351,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtSOlderAge;
         private System.Windows.Forms.TextBox txtSYoungerAge;
+        private System.Windows.Forms.TextBox txtSOlderAge;
         private System.Windows.Forms.ComboBox cboSEra;
         private System.Windows.Forms.ToolStrip toolStrip3;
         private System.Windows.Forms.GroupBox grpNotes;
@@ -2381,8 +2382,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox txtROlderAge;
         private System.Windows.Forms.TextBox txtRYoungerAge;
+        private System.Windows.Forms.TextBox txtROlderAge;
         private System.Windows.Forms.ComboBox cboRYoungerEra;
 
     }

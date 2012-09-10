@@ -1704,8 +1704,13 @@ namespace ncgmpToolbar
                 txtThisAge.Clear();
                 liEvts.SelectedIndex = -1;
 
-                cboEventType.SelectedIndex = 0;
+                initEmptyEventTab();
+            }
+
+            private void initEmptyEventTab()
+            {
                 txtAgeDisplay.Clear();
+                cboEventType.SelectedIndex = 0;
                 cboEvt.SelectedIndex = -1;
                 txtNotes.Clear();
 
@@ -1718,16 +1723,16 @@ namespace ncgmpToolbar
             private void initEmptySingleTimeScale()
             {
                 cboSEra.SelectedIndex = -1;
-                txtSYoungerAge.Clear();
                 txtSOlderAge.Clear();
+                txtSYoungerAge.Clear();
             }
 
             private void initEmptyRangeTimeScale()
             {
                 cboROlderEra.SelectedIndex = -1;
                 cboRYoungerEra.SelectedIndex = -1;
-                txtROlderAge.Clear();
                 txtRYoungerAge.Clear();
+                txtROlderAge.Clear();
             }
         #endregion
 
@@ -1735,7 +1740,7 @@ namespace ncgmpToolbar
             private void btnAgeAdd_Click(object sender, EventArgs e)
             {
                 tabEvtEditor.SelectedTab = tabAgeEvent;
-                initEmptyAgeEventTab();
+                initEmptyEventTab();
                 isUpdate4AgeEvent = false;
                 liEvts.SelectedIndex = -1;
             }
@@ -1754,6 +1759,8 @@ namespace ncgmpToolbar
                 string selectedString = liEvts.SelectedItem.ToString();
                 /// Remove the selected item from the event list box
                 liEvts.Items.Remove(liEvts.SelectedItem);
+                /// Clear this map unit age display if the deleted age event is selected for this map unit
+                if (liEvts.SelectedItem.ToString() == txtThisAge.Text) { txtThisAge.Clear(); }
 
                 /// Remove the selected item from the list box dictionary
                 m_GeologicEventsDictionary.Remove(m_EvtListDictionary[selectedString]);
@@ -1765,7 +1772,7 @@ namespace ncgmpToolbar
                 if (liEvts.SelectedIndex == -1)
                 {
                     if (isUpdate4AgeEvent) { return; }
-                    initEmptyAgeEventTab();
+                    initEmptyEventTab();
                 }
                 else
                 {
@@ -1792,16 +1799,16 @@ namespace ncgmpToolbar
                 {
                     cboEventType.SelectedItem = "Single Age Event";
                     cboSEra.SelectedItem = thisGeologicEvents.AgeOlderTerm;
-                    txtSYoungerAge.Text = thisGeologicEvents.AgeYoungerValue;
-                    txtSOlderAge.Text = thisGeologicEvents.AgeOlderValue;
+                    txtSOlderAge.Text = thisGeologicEvents.AgeYoungerValue;
+                    txtSYoungerAge.Text = thisGeologicEvents.AgeOlderValue;
                 }
                 else
                 {
                     cboEventType.SelectedItem = "Age Range Event";
                     cboRYoungerEra.SelectedItem = thisGeologicEvents.AgeYoungerTerm;
                     cboROlderEra.SelectedItem = thisGeologicEvents.AgeOlderTerm;
-                    txtRYoungerAge.Text = thisGeologicEvents.AgeYoungerValue;
-                    txtROlderAge.Text = thisGeologicEvents.AgeOlderValue;
+                    txtROlderAge.Text = thisGeologicEvents.AgeYoungerValue;
+                    txtRYoungerAge.Text = thisGeologicEvents.AgeOlderValue;
                 }
 
             }
@@ -2404,14 +2411,14 @@ namespace ncgmpToolbar
                         case "Single Age Event":
                             selectedEvent.AgeYoungerTerm = cboSEra.SelectedItem.ToString();
                             selectedEvent.AgeOlderTerm = cboSEra.SelectedItem.ToString();
-                            selectedEvent.AgeYoungerValue = txtSYoungerAge.Text;
-                            selectedEvent.AgeOlderValue = txtSOlderAge.Text;
+                            selectedEvent.AgeYoungerValue = txtSOlderAge.Text;
+                            selectedEvent.AgeOlderValue = txtSYoungerAge.Text;
                             break;
                         case "Age Range Event":
                             selectedEvent.AgeYoungerTerm = cboRYoungerEra.SelectedItem.ToString();
                             selectedEvent.AgeOlderTerm = cboROlderEra.SelectedItem.ToString();
-                            selectedEvent.AgeYoungerValue = txtRYoungerAge.Text;
-                            selectedEvent.AgeOlderValue = txtROlderAge.Text;
+                            selectedEvent.AgeYoungerValue = txtROlderAge.Text;
+                            selectedEvent.AgeOlderValue = txtRYoungerAge.Text;
                             break;
                     }
 
@@ -2436,7 +2443,7 @@ namespace ncgmpToolbar
                     {
                         case "Single Age Event":
                             thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboSEra.SelectedItem.ToString(), cboSEra.SelectedItem.ToString(),
-                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtSYoungerAge.Text, txtSOlderAge.Text, dataSrcID, txtNotes.Text);
+                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtSOlderAge.Text, txtSYoungerAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
                             /// Add the new event into the dictionary
@@ -2444,7 +2451,7 @@ namespace ncgmpToolbar
                             break;
                         case "Age Range Event":
                             thisGeologicEventsAccess.NewGeologicEvents(cboEvt.SelectedItem.ToString(), txtAgeDisplay.Text, cboRYoungerEra.SelectedItem.ToString(), cboROlderEra.SelectedItem.ToString(),
-                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtRYoungerAge.Text, txtROlderAge.Text, dataSrcID, txtNotes.Text);
+                                "http://resource.geosciml.org/classifierscheme/ics/ischart/2009", txtROlderAge.Text, txtRYoungerAge.Text, dataSrcID, txtNotes.Text);
                             thisKey = thisGeologicEventsAccess.GeologicEventsDictionary.First().Key;
                             thisGeologicEvents = thisGeologicEventsAccess.GeologicEventsDictionary.First().Value;
                             /// Add the new event into the dictionary
@@ -2468,7 +2475,7 @@ namespace ncgmpToolbar
                 /// Switch into event list tab
                 tabEvtEditor.SelectedTab = tabAgeList;
                 /// Clear the event editing tab
-                initEmptyAgeEventTab();
+                initEmptyEventTab();
             }
 
             private void cboEventType_SelectedIndexChanged(object sender, EventArgs e)
@@ -2494,8 +2501,8 @@ namespace ncgmpToolbar
 
                 string thisEra = cboSEra.SelectedItem.ToString();
                 TimeScale thisTimeScale = m_TimeScaleDictionary[thisEra];
-                txtSYoungerAge.Text = thisTimeScale.startTime.ToString();
-                txtSOlderAge.Text = thisTimeScale.endTime.ToString();
+                txtSOlderAge.Text = thisTimeScale.startTime.ToString();
+                txtSYoungerAge.Text = thisTimeScale.endTime.ToString();
             }      
 
             private void cboRYoungerEra_SelectedIndexChanged(object sender, EventArgs e)
@@ -2504,7 +2511,7 @@ namespace ncgmpToolbar
 
                 string thisYoungerEra = cboRYoungerEra.SelectedItem.ToString();
                 TimeScale thisYoungerTimeScale = m_TimeScaleDictionary[thisYoungerEra];
-                txtRYoungerAge.Text = thisYoungerTimeScale.startTime.ToString();
+                txtRYoungerAge.Text = thisYoungerTimeScale.endTime.ToString();
             }
 
             private void cboROlderEra_SelectedIndexChanged(object sender, EventArgs e)
@@ -2513,7 +2520,7 @@ namespace ncgmpToolbar
 
                 string thisOlderEra = cboROlderEra.SelectedItem.ToString();
                 TimeScale thisOlderTimeScale = m_TimeScaleDictionary[thisOlderEra];
-                txtROlderAge.Text = thisOlderTimeScale.endTime.ToString();
+                txtROlderAge.Text = thisOlderTimeScale.startTime.ToString();
             }
             
             /// <summary>
@@ -2531,13 +2538,13 @@ namespace ncgmpToolbar
                     case "Single Age Event":
                         txtAgeDisplay.Text = evtTerm + "; " 
                             + cboSEra.SelectedItem.ToString() + ","
-                            + txtSYoungerAge.Text + "Ma - " 
-                            + txtSOlderAge.Text + "Ma";
+                            + txtSOlderAge.Text + "Ma - " 
+                            + txtSYoungerAge.Text + "Ma";
                         break;
                     case "Age Range Event":
                         txtAgeDisplay.Text = evtTerm + "; "
-                            + cboRYoungerEra.SelectedItem.ToString() + "," + txtRYoungerAge.Text + "Ma - "
-                            + cboROlderEra.SelectedItem.ToString() + "," + txtROlderAge.Text + "Ma";
+                            + cboRYoungerEra.SelectedItem.ToString() + "," + txtROlderAge.Text + "Ma - "
+                            + cboROlderEra.SelectedItem.ToString() + "," + txtRYoungerAge.Text + "Ma";
                         break;
                 }
             }
@@ -2560,9 +2567,9 @@ namespace ncgmpToolbar
                         olderAge = double.Parse(txtROlderAge.Text);
                         break;
                 }
-                if (youngerAge < olderAge)
+                if (youngerAge > olderAge)
                 {
-                    MessageBox.Show("Older Age cannot be younger than Younger Age!", "Invalid Inputs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Max Age cannot be younger than min age!", "Invalid Inputs", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
 
@@ -2608,7 +2615,11 @@ namespace ncgmpToolbar
 
             string thisValueLinkId = null;
 
+            geoEvtsAccess.SaveGeologicEvents();
+
             /// Reset variable m_GeologicEventsDictionary and m_EvtListDictionary
+            geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
+            geoEvtsAccess.AddGeologicEvents();
             m_GeologicEventsDictionary = geoEvtsAccess.GeologicEventsDictionary;
             m_EvtListDictionary.Clear();
 
@@ -2618,8 +2629,7 @@ namespace ncgmpToolbar
                 { thisValueLinkId = aGeologicEventsEntry.Value.GeologicEvents_ID; }
                 m_EvtListDictionary.Add(aGeologicEventsEntry.Value.AgeDisplay, aGeologicEventsEntry.Key);
             }
-
-            geoEvtsAccess.SaveGeologicEvents();
+            
             /// <end> ---------------------------------------------------------------------------------------------------
             /// ---------------------------------------------------------------------------------------------------------
 

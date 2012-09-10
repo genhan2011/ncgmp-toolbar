@@ -1063,6 +1063,7 @@
             this.btnCancelAge.Size = new System.Drawing.Size(48, 22);
             this.btnCancelAge.Text = "Cancel";
             this.btnCancelAge.ToolTipText = "Cancel";
+            this.btnCancelAge.Click += new System.EventHandler(this.btnCancelAge_Click);
             // 
             // grpEvtList
             // 

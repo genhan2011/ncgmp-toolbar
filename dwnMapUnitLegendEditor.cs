@@ -1684,6 +1684,10 @@ namespace ncgmpToolbar
                 GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace); /// Create a new geologic events access object
                 geoEvtsAccess.AddGeologicEvents(); /// Search for all the events                                                
 
+                /// Clear the content of geologic events dictionary and event list dictionary
+                m_GeologicEventsDictionary.Clear();
+                m_EvtListDictionary.Clear();
+
                 m_GeologicEventsDictionary = geoEvtsAccess.GeologicEventsDictionary; /// Replace the old geologic events dictionary
 
                 /// Add the age displays into the list box
@@ -2559,10 +2563,12 @@ namespace ncgmpToolbar
                 switch (cboEventType.SelectedItem.ToString())
                 {
                     case "Single Age Event":
+                        if (txtSYoungerAge.Text == "" || txtSOlderAge.Text == "") { return false; }
                         youngerAge = double.Parse(txtSYoungerAge.Text);
                         olderAge = double.Parse(txtSOlderAge.Text);
                         break;
                     case "Age Range Event":
+                        if (txtRYoungerAge.Text == "" || txtROlderAge.Text == "") { return false; }
                         youngerAge = double.Parse(txtRYoungerAge.Text);
                         olderAge = double.Parse(txtROlderAge.Text);
                         break;
@@ -2579,14 +2585,20 @@ namespace ncgmpToolbar
 
         private void btnSaveAge_Click(object sender, EventArgs e)
         {
-            saveGeologicEventsTable();
+            saveAge();
         }
 
-        private void saveGeologicEventsTable()
+        private void saveAge()
         {
             if (m_theWorkspace == null)
             {
                 MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (txtMapUnitAbbreviation.Text == "")
+            {
+                MessageBox.Show("Please select a valid map unit!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -2661,6 +2673,15 @@ namespace ncgmpToolbar
             
         }
 
+        private void btnCancelAge_Click(object sender, EventArgs e)
+        {
+            string mapUnit = txtMapUnitAbbreviation.Text;
+            if (m_theWorkspace != null && mapUnit != null)
+            {
+                liEvts.Items.Clear();
+                initAgeTab(mapUnit);
+            }
+        }
     #endregion
 
     }

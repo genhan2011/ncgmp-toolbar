@@ -749,6 +749,7 @@ namespace ncgmpToolbar
 
         private void tlsbtnSaveMapUnit_Click(object sender, EventArgs e)
         {
+            saveAge();
             saveLithology();
             saveMapUnit();
             
@@ -847,8 +848,9 @@ namespace ncgmpToolbar
 
         private void tlsbtnCancel_Click(object sender, EventArgs e)
         {
-            cancelMapUnit();
+            cancelAge();
             cancelLithology();
+            cancelMapUnit();
         }
 
         private void cancelMapUnit()
@@ -867,7 +869,11 @@ namespace ncgmpToolbar
             // Clear the input controls
             ClearMapUnitInput();
             ClearLithologyInput();
+            txtThisAge.Clear(); /// Clear the age display for this map unit
             trvLegendItems.SelectedNode = null;
+
+            /// Switch to the map unit tab
+            tabInputs.SelectedIndex = 0;
 
             // Set the Update flag
             m_ThisIsAnUpdate = false;
@@ -1533,30 +1539,41 @@ namespace ncgmpToolbar
 
         private void btnSaveLith_Click(object sender, EventArgs e)
         {
+            saveAge();
             saveLithology();
             saveMapUnit();
         }
 
         private void saveLithology()
         {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (txtMapUnitAbbreviation.Text == "")
+            {
+                MessageBox.Show("Please select a valid map unit!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             updateLithology4MapUnit();
             string mapUnit = txtMapUnitAbbreviation.Text;          
 
-            if (m_theWorkspace != null && mapUnit != null)
+            StandardLithologyAccess lithAccess = new StandardLithologyAccess(m_theWorkspace);
+            lithAccess.AddStandardLithology("MapUnit = '" + mapUnit + "'");
+            lithAccess.StandardLithologyDictionary = m_StandardLithologyDictionary;
+
+            lithAccess.SaveStandardLithology();
+
+            foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aDictionaryEntry in m_StandardLithologyDeleteDictionary)
             {
-                StandardLithologyAccess lithAccess = new StandardLithologyAccess(m_theWorkspace);
-                lithAccess.AddStandardLithology("MapUnit = '" + mapUnit + "'");
-                lithAccess.StandardLithologyDictionary = m_StandardLithologyDictionary;
+                lithAccess.DeleteStandardLithology(aDictionaryEntry.Value);
+            }
 
-                lithAccess.SaveStandardLithology();
+            ClearLithologyInput();
 
-                foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aDictionaryEntry in m_StandardLithologyDeleteDictionary)
-                {
-                    lithAccess.DeleteStandardLithology(aDictionaryEntry.Value);
-                }
-
-                ClearLithologyInput();
-            } 
         }
 
         #region "Update the related lithology if when the map unit info changes -- by Genhan"
@@ -1583,6 +1600,7 @@ namespace ncgmpToolbar
 
         private void btnCancelLith_Click(object sender, EventArgs e)
         {
+            cancelAge();
             cancelLithology();
             cancelMapUnit();
         }
@@ -1620,7 +1638,7 @@ namespace ncgmpToolbar
             initTimeScaleDictionary();
             if (liEvts.Items.Count == 0) { initAgeEventsListbox(); }
 
-            if (mapUnit == null) { initEmptyAgeEventTab(); }
+            if (mapUnit == null || mapUnit == "") { initEmptyAgeEventTab(); }
             else {
                 initEmptyAgeEventTab();
                 initAgeEventTab(mapUnit); 
@@ -1764,7 +1782,7 @@ namespace ncgmpToolbar
                 /// Remove the selected item from the event list box
                 liEvts.Items.Remove(liEvts.SelectedItem);
                 /// Clear this map unit age display if the deleted age event is selected for this map unit
-                if (liEvts.SelectedItem.ToString() == txtThisAge.Text) { txtThisAge.Clear(); }
+                if (selectedString == txtThisAge.Text) { txtThisAge.Clear(); }
 
                 /// Remove the selected item from the list box dictionary
                 m_GeologicEventsDictionary.Remove(m_EvtListDictionary[selectedString]);
@@ -2409,6 +2427,7 @@ namespace ncgmpToolbar
                     selectedEvent.Event = cboEvt.SelectedItem.ToString();
                     selectedEvent.TimeScale = "http://resource.geosciml.org/classifierscheme/ics/ischart/2009";
                     selectedEvent.Notes = txtNotes.Text;
+                    selectedEvent.DataSourceID = commonFunctions.GetCurrentDataSourceID();
 
                     switch (cboEventType.SelectedItem.ToString())
                     {
@@ -2586,6 +2605,8 @@ namespace ncgmpToolbar
         private void btnSaveAge_Click(object sender, EventArgs e)
         {
             saveAge();
+            saveLithology();
+            saveMapUnit();
         }
 
         private void saveAge()
@@ -2670,10 +2691,18 @@ namespace ncgmpToolbar
             extAttrAccess.SaveExtendedAttributes();
             /// <end> ---------------------------------------------------------------------------------------------------
             /// ---------------------------------------------------------------------------------------------------------
-            
+
+            initEmptyAgeEventTab();
         }
 
         private void btnCancelAge_Click(object sender, EventArgs e)
+        {
+            cancelAge();
+            cancelLithology();
+            cancelMapUnit();
+        }
+
+        private void cancelAge()
         {
             string mapUnit = txtMapUnitAbbreviation.Text;
             if (m_theWorkspace != null && mapUnit != null)

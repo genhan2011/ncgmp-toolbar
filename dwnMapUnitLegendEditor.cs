@@ -71,7 +71,7 @@ namespace ncgmpToolbar
 
             if (trvLegendItems.SelectedNode != null)
             {
-                initLithListBox(m_theWorkspace, trvLegendItems.SelectedNode.Name, false);
+                initLithListBox(txtMapUnitAbbreviation.Text);
             }
 
             initEmptyAgeEventTab();
@@ -387,7 +387,7 @@ namespace ncgmpToolbar
             PopulateInputControls(thisDmuEntry);
 
             // Get the related standard lithology entry
-            initLithListBox(m_theWorkspace, thisDmuEntry.MapUnit, chkIsHeading.Checked);
+            initLithListBox(thisDmuEntry.MapUnit);
 
             /// Initialize the age tab
             initAgeTab(thisDmuEntry.MapUnit);
@@ -686,10 +686,20 @@ namespace ncgmpToolbar
 
         private void txtMapUnitAbbreviation_EnabledChanged(object sender, EventArgs e)
         {
-            // No lithology info for header
-            if (m_theWorkspace != null && txtMapUnitAbbreviation.Text != "")
+            initLithListBox(txtMapUnitAbbreviation.Text);
+            initAgeTab(txtMapUnitAbbreviation.Text);
+
+            if (txtMapUnitAbbreviation.Enabled)
             {
-                initLithListBox(m_theWorkspace, txtMapUnitAbbreviation.Text, chkIsHeading.Checked);
+                tabInputs.SelectedIndex = 0;
+                ((Control)tabAge).Enabled = true;
+                ((Control)tabLith).Enabled = true;
+            }
+            else
+            {
+                tabInputs.SelectedIndex = 0;
+                ((Control)tabAge).Enabled = false;
+                ((Control)tabLith).Enabled = false;
             }
         }
 
@@ -750,6 +760,17 @@ namespace ncgmpToolbar
         private void chkIsHeading_CheckedChanged(object sender, EventArgs e)
         {
             EnableControls(chkIsHeading.Checked, false);
+
+            if (chkIsHeading.Checked)
+            {
+                ((Control)tabAge).Enabled = false;
+                ((Control)tabLith).Enabled = false;
+            }
+            else
+            {
+                ((Control)tabAge).Enabled = true;
+                ((Control)tabLith).Enabled = true;
+            }
         }
 
     #endregion        
@@ -1384,38 +1405,32 @@ namespace ncgmpToolbar
             m_isLithUpdate = false;
         }
 
-        private void initLithListBox(IWorkspace theWorkspace, string mapUnit, bool isHeading)
+        private void initLithListBox(string mapUnit)
         {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             liLith.Items.Clear();
             ClearLithologyInput();
 
             m_StandardLithologyDictionary.Clear();
             m_StandardLithologyDeleteDictionary.Clear();
 
-            StandardLithologyAccess lithAccess = new StandardLithologyAccess(theWorkspace);
+            StandardLithologyAccess lithAccess = new StandardLithologyAccess(m_theWorkspace);
             lithAccess.AddStandardLithology("MapUnit = '" + mapUnit + "'");
 
-            btnNewLith.Enabled = !isHeading;
-            btnAddLith.Enabled = !isHeading;
-            btnDeleteLith.Enabled = !isHeading;
-            btnSaveLith.Enabled = !isHeading;
-            btnCancelLith.Enabled = !isHeading;
-            liLith.Enabled = !isHeading;
-            cboLith.Enabled = !isHeading;
-            cboPartType.Enabled = !isHeading;
-            cboPropTerm.Enabled = !isHeading;
-
-            if (!isHeading)
+            foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aDictionaryEntry in lithAccess.StandardLithologyDictionary)
             {
-                foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aDictionaryEntry in lithAccess.StandardLithologyDictionary)
-                {
-                    string aKey = aDictionaryEntry.Key;
-                    StandardLithologyAccess.StandardLithology aDictionaryValue = aDictionaryEntry.Value;
-                    liLith.Items.Add(aDictionaryValue.Lithology);
+                string aKey = aDictionaryEntry.Key;
+                StandardLithologyAccess.StandardLithology aDictionaryValue = aDictionaryEntry.Value;
+                liLith.Items.Add(aDictionaryValue.Lithology);
 
-                    m_StandardLithologyDictionary.Add(aKey, aDictionaryValue);
-                }
+                m_StandardLithologyDictionary.Add(aKey, aDictionaryValue);
             }
+            
 
         }
 
@@ -1634,9 +1649,9 @@ namespace ncgmpToolbar
         private void cancelLithology()
         {
             string mapUnit = txtMapUnitAbbreviation.Text;
-            if (m_theWorkspace != null && mapUnit != null)
+            if (m_theWorkspace != null && mapUnit != "")
             {
-                initLithListBox(m_theWorkspace, mapUnit, false);
+                initLithListBox(mapUnit);
             }
         }
 
@@ -1671,6 +1686,7 @@ namespace ncgmpToolbar
     #region "Age Controls by Genhan"
         private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
         //private ExtendedAttributesAccess.ExtendedAttributes m_ExtendedAttributes = new ExtendedAttributesAccess.ExtendedAttributes();
+        private string m_initMapUnit;
 
         private Dictionary<string, string> m_EvtListDictionary = new Dictionary<string, string>();
         private bool isUpdate4AgeEvent = false;
@@ -1694,6 +1710,8 @@ namespace ncgmpToolbar
         /// </summary>
         private void initAgeEventTab(string mapUnit)
         {
+            m_initMapUnit = mapUnit;
+
             if (m_theWorkspace == null)
             {
                 MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1708,7 +1726,7 @@ namespace ncgmpToolbar
             if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
             {
                 ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
-                vLinkId = thisExtendedAttributes.ValueLinkID;
+                vLinkId = thisExtendedAttributes.ValueLinkID;             
             }
 
             /// Connect with the Geologic Event table
@@ -2715,21 +2733,31 @@ namespace ncgmpToolbar
             /// <start> Settings to save extended attributes changes ----------------------------------------------------
             /// connect with the Extended Attributes table
             ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
+            /// Search for the related record in the extended attribute table with the old map unit value
+            extAttrAccess.AddExtendedAttributes(("OwnerID = '" + m_initMapUnit + "'"));
 
-            if (thisValueLinkId != null) 
-            {   
-                extAttrAccess.AddExtendedAttributes(("OwnerID = '" + txtMapUnitAbbreviation.Text + "'"));
+            if (thisValueLinkId != null)
+            {
                 if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
                 {
                     ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
                     thisExtendedAttributes.ValueLinkID = thisValueLinkId;
                     thisExtendedAttributes.DataSourceID = commonFunctions.GetCurrentDataSourceID();
+                    thisExtendedAttributes.OwnerID = txtMapUnitAbbreviation.Text;
                     extAttrAccess.UpdateExtendedAttributes(thisExtendedAttributes);
                 }
                 else
                 {
                     extAttrAccess.NewExtendedAttributes(txtMapUnitAbbreviation.Text, null, null, null, thisValueLinkId, null,
                         commonFunctions.GetCurrentDataSourceID(), txtNotes.Text);
+                }
+            }
+            else
+            {
+                if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
+                {
+                    ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+                    extAttrAccess.DeleteExtendedAttributes(thisExtendedAttributes);
                 }
             }
 
@@ -2773,6 +2801,7 @@ namespace ncgmpToolbar
             ExtendedAttributesAccess.ExtendedAttributes anExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
             extAttrAccess.DeleteExtendedAttributes(anExtendedAttributes);           
         }
+
     #endregion
 
     }

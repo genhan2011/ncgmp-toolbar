@@ -2754,6 +2754,7 @@ namespace ncgmpToolbar
             }
             else
             {
+                /// Delete this Extended Attributes record if no age display value for this map unit
                 if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
                 {
                     ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;

@@ -206,7 +206,7 @@ namespace ncgmpToolbar.Utilities.DataAccess
          
         }
 
-        public void DeleteStandardLithology(ExtendedAttributes theExtendedAttributes)
+        public void DeleteExtendedAttributes(ExtendedAttributes theExtendedAttributes)
         {
             try { m_ExtendedAttributesDictionary.Remove(theExtendedAttributes.ExtendedAttributes_ID); }
             catch { }

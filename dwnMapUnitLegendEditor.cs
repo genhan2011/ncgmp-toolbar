@@ -684,6 +684,15 @@ namespace ncgmpToolbar
             this.pnlColor.BackColor = this.colorDialog.Color;
         }
 
+        private void txtMapUnitAbbreviation_EnabledChanged(object sender, EventArgs e)
+        {
+            // No lithology info for header
+            if (m_theWorkspace != null && txtMapUnitAbbreviation.Text != "")
+            {
+                initLithListBox(m_theWorkspace, txtMapUnitAbbreviation.Text, chkIsHeading.Checked);
+            }
+        }
+
         #region "Adjustments to be made when textboxes are changed"
 
         private void txtUnitName_TextChanged(object sender, EventArgs e)
@@ -899,6 +908,12 @@ namespace ncgmpToolbar
                 // They want to continue. First delete this one
                 dmuAccess.AddDescriptionOfMapUnits("DescriptionOfMapUnits_ID = '" + trvLegendItems.SelectedNode.Name + "'");
                 DescriptionOfMapUnitsAccess.DescriptionOfMapUnit thisEntry = dmuAccess.DescriptionOfMapUnitsDictionary[trvLegendItems.SelectedNode.Name];
+
+                /// Delete related record in the Extended Attributes table
+                deleteExtendedAtrributesRecord(thisEntry.MapUnit);
+                /// Delete related lithology records
+                deleteLithologyRecord(thisEntry.MapUnit);
+
                 dmuAccess.DeleteDescriptionOfMapUnits(thisEntry);
 
                 // Now Delete all children
@@ -912,6 +927,12 @@ namespace ncgmpToolbar
                 // This node has no children, simply delete it
                 dmuAccess.AddDescriptionOfMapUnits("DescriptionOfMapUnits_ID = '" + trvLegendItems.SelectedNode.Name + "'");
                 DescriptionOfMapUnitsAccess.DescriptionOfMapUnit thisEntry = dmuAccess.DescriptionOfMapUnitsDictionary[trvLegendItems.SelectedNode.Name];
+
+                /// Delete related record in the Extended Attributes table
+                deleteExtendedAtrributesRecord(thisEntry.MapUnit);
+                /// Delete related lithology records
+                deleteLithologyRecord(thisEntry.MapUnit);
+
                 dmuAccess.DeleteDescriptionOfMapUnits(thisEntry);
 
                 // Remove this item from the Hierarchy - Update its siblings and children
@@ -939,6 +960,11 @@ namespace ncgmpToolbar
                 // Get the DMU entry for this entry
                 DmuAccess.AddDescriptionOfMapUnits("DescriptionOfMapUnits_ID = '" + anEntry.Value.DescriptionOfMapUnits_ID + "'");
                 DescriptionOfMapUnitsAccess.DescriptionOfMapUnit thisDmuEntry = DmuAccess.DescriptionOfMapUnitsDictionary[anEntry.Value.DescriptionOfMapUnits_ID];
+
+                /// Delete related record in the Extended Attributes table
+                deleteExtendedAtrributesRecord(thisDmuEntry.MapUnit);
+                /// Delete related lithology records
+                deleteLithologyRecord(thisDmuEntry.MapUnit);
 
                 // Delete it
                 DmuAccess.DeleteDescriptionOfMapUnits(thisDmuEntry);
@@ -1614,12 +1640,29 @@ namespace ncgmpToolbar
             }
         }
 
-        private void txtMapUnitAbbreviation_EnabledChanged(object sender, EventArgs e)
+        private void deleteLithologyRecord(string mapUnit)
         {
-            // No lithology info for header
-            if (m_theWorkspace != null && txtMapUnitAbbreviation.Text != null)
+            if (m_theWorkspace == null)
             {
-                initLithListBox(m_theWorkspace, txtMapUnitAbbreviation.Text, chkIsHeading.Checked);
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            /// Connect with the Lithology table
+            StandardLithologyAccess lithAccess = new StandardLithologyAccess(m_theWorkspace);
+            /// Search for the lithology record for this map unit
+            lithAccess.AddStandardLithology("MapUnit = '" + mapUnit + "'");
+
+            Dictionary<string, StandardLithologyAccess.StandardLithology> thisDictionary = new Dictionary<string, StandardLithologyAccess.StandardLithology>();
+
+            foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aLithEntry in lithAccess.StandardLithologyDictionary)
+            {
+                thisDictionary.Add(aLithEntry.Key, aLithEntry.Value);
+            }
+
+            foreach (KeyValuePair<string, StandardLithologyAccess.StandardLithology> aDelLith in thisDictionary)
+            {
+                lithAccess.DeleteStandardLithology(aDelLith.Value);
             }
         }
 
@@ -1778,6 +1821,8 @@ namespace ncgmpToolbar
 
             private void btnAgeDelete_Click(object sender, EventArgs e)
             {
+                if (liEvts.SelectedIndex == -1) { return; }
+
                 string selectedString = liEvts.SelectedItem.ToString();
                 /// Remove the selected item from the event list box
                 liEvts.Items.Remove(liEvts.SelectedItem);
@@ -2710,6 +2755,23 @@ namespace ncgmpToolbar
                 liEvts.Items.Clear();
                 initAgeTab(mapUnit);
             }
+        }
+
+        private void deleteExtendedAtrributesRecord(string mapUnit)
+        {
+            if (m_theWorkspace == null)
+            {
+                MessageBox.Show("Please open a working space!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            /// Connect with the Extended Attribute table
+            ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
+            /// Search for the extended attributes record for this map unit
+            extAttrAccess.AddExtendedAttributes("OwnerID = '" + mapUnit + "'");
+
+            ExtendedAttributesAccess.ExtendedAttributes anExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+            extAttrAccess.DeleteExtendedAttributes(anExtendedAttributes);           
         }
     #endregion
 

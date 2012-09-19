@@ -281,9 +281,145 @@ namespace ncgmpToolbar.Utilities
             templateEditor.AddTemplates(templateArray);
 
             // Update the Doc
-            ArcMap.Document.UpdateContents();
-            
+            ArcMap.Document.UpdateContents();         
+        }
 
+        public static void BuildRalphGenericTemplates(IWorkspace theWorkspace, ILayer FeatureClassLayer, string FeatureClassName)
+        {
+            // Get reference to the template manager, remove current templates
+            IEditor3 templateEditor = ArcMap.Editor as IEditor3;
+            templateEditor.RemoveAllTemplatesInLayer(FeatureClassLayer);
+
+            // Setup the template array and the factory for making templates
+            IArray templateArray = new ArrayClass();
+            IEditTemplateFactory templateFactory = new EditTemplateFactoryClass();
+            IEditTemplate newTemplate;
+
+            // Generic legend generation depends on what class is being passed in
+            //  Note - this routine assumes representations are in use.
+
+            switch (FeatureClassName)
+            {
+                case "ContactsAndFaults":
+                    // Accurate Contact
+                    newTemplate = templateFactory.Create("Accurate Contact", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Contact", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 0, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Accurate Contact", false);
+                    newTemplate.SetDefaultValue("RuleID", 1, false);
+                    templateArray.Add(newTemplate);
+
+                    // Approximate Contact
+                    newTemplate = templateFactory.Create("Approximate Contact", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Contact", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 0, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Approximate Contact", false);
+                    newTemplate.SetDefaultValue("RuleID", 3, false);
+                    templateArray.Add(newTemplate);
+
+                    // Gradational Contact
+                    newTemplate = templateFactory.Create("Gradational Contact", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Contact", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 0, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Gradational Contact", false);
+                    newTemplate.SetDefaultValue("RuleID", 17, false);
+                    templateArray.Add(newTemplate);
+
+                    // Accurate Fault
+                    newTemplate = templateFactory.Create("Accurate Fault", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Fault", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 0, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Accurate Fault", false);
+                    newTemplate.SetDefaultValue("RuleID", 118, false);
+                    templateArray.Add(newTemplate);
+
+                    // Approximate Fault
+                    newTemplate = templateFactory.Create("Approximate Fault", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Fault", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 0, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Approximate Fault", false);
+                    newTemplate.SetDefaultValue("RuleID", 120, false);
+                    templateArray.Add(newTemplate);
+
+                    // Concealed Contact
+                    newTemplate = templateFactory.Create("Concealed Contact", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Contact", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 1, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Concealed Contact", false);
+                    newTemplate.SetDefaultValue("RuleID", 265, false);
+                    templateArray.Add(newTemplate);
+
+                    // Concealed Fault
+                    newTemplate = templateFactory.Create("Concealed Fault", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Fault", false);
+                    newTemplate.SetDefaultValue("IsConcealed", 1, false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Concealed Fault", false);
+                    newTemplate.SetDefaultValue("RuleID", 273, false);
+                    templateArray.Add(newTemplate);
+                    break;
+
+                case "GeologicLines":
+                    // Dike
+                    newTemplate = templateFactory.Create("Accurate Dike", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Dike", false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Accurate Dike", false);
+                    newTemplate.SetDefaultValue("RuleID", 82, false);
+                    templateArray.Add(newTemplate);
+
+                    // Anticline
+                    newTemplate = templateFactory.Create("Accurate Anticline", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Fold", false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Accurate Anticline", false);
+                    newTemplate.SetDefaultValue("RuleID", 121, false);
+                    templateArray.Add(newTemplate);
+
+                    // Syncline
+                    newTemplate = templateFactory.Create("Accurate Syncline", FeatureClassLayer);
+                    newTemplate.SetDefaultValue("Type", "Fold", false);
+                    newTemplate.SetDefaultValue("ExistenceConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("IdentityConfidence", "Standard Confidence", false);
+                    newTemplate.SetDefaultValue("LocationConfidenceMeters", 0, false);
+                    newTemplate.SetDefaultValue("Label", "Accurate Syncline", false);
+                    newTemplate.SetDefaultValue("RuleID", 233, false);
+                    templateArray.Add(newTemplate);
+                    break;
+
+                case "OrientationDataPoints":
+                    break;
+            }
+
+            // Add the templates to the editor
+            templateEditor.AddTemplates(templateArray);
+
+            // Update the Doc
+            ArcMap.Document.UpdateContents();
         }
 
         public static void UpdateMapUnitPolysRenderer(IWorkspace theWorkspace)

@@ -79,7 +79,7 @@ namespace ncgmpToolbar
 
             // Check that the workspace being edited is NCGMP-valid.
             m_EditWorkspace = theEditor.EditWorkspace;
-            m_DatabaseIsValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_EditWorkspace);
+            m_DatabaseIsValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_EditWorkspace) || ncgmpChecks.IsWorkspaceRalphNCGMPCompliant(m_EditWorkspace);
 
             // Check that the SysInfo table is present.
             if (m_DatabaseIsValid == true)
@@ -102,8 +102,8 @@ namespace ncgmpToolbar
                 }
 
                 // Check other Database-validity things
-                m_DatabaseUsesRepresentation = ncgmpChecks.AreRepresentationsUsed(m_EditWorkspace);
-                m_DatabaseHasStations = ncgmpChecks.IsAzgsStationAddinPresent(m_EditWorkspace);                               
+                m_DatabaseUsesRepresentation = ncgmpChecks.AreRepresentationsUsed(m_EditWorkspace) || ncgmpChecks.AreRalphRepresentationsUsed(m_EditWorkspace);
+                m_DatabaseHasStations = ncgmpChecks.IsAzgsStationAddinPresent(m_EditWorkspace) || ncgmpChecks.AreRalphRepresentationsUsed(m_EditWorkspace);                               
             }
 
             // From http://resources.esri.com/help/9.3/ArcGISDesktop/ArcObjects/esrigeodatabase/IWorkspaceEditControl.htm

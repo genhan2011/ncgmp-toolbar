@@ -65,7 +65,11 @@ namespace ncgmpToolbar.Utilities.DataAccess
             int rgbFld = m_DescriptionOfMapUnitsTable.FindField("AreaFillRGB");
             int patFld = m_DescriptionOfMapUnitsTable.FindField("AreaFillPatternDescription");
             int dsFld = m_DescriptionOfMapUnitsTable.FindField("DescriptionSourceID");
+
+            /// Identify the field id for AZGS geodatabase and Ralph geodatabase
             int glFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithologyTerm");
+            if (glFld == -1) { glFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithology"); }
+
             int glConfFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithologyConfidence");
 
             ICursor theCursor;
@@ -156,7 +160,11 @@ namespace ncgmpToolbar.Utilities.DataAccess
             int rgbFld = m_DescriptionOfMapUnitsTable.FindField("AreaFillRGB");
             int patFld = m_DescriptionOfMapUnitsTable.FindField("AreaFillPatternDescription");
             int dsFld = m_DescriptionOfMapUnitsTable.FindField("DescriptionSourceID");
+
+            /// Identify the field id for AZGS geodatabase and Ralph geodatabase
             int glFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithologyTerm");
+            if (glFld == -1) { glFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithology"); }
+            
             int glConfFld = m_DescriptionOfMapUnitsTable.FindField("GeneralLithologyConfidence");
 
             IEditor theEditor = ArcMap.Editor;

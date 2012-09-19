@@ -37,7 +37,7 @@ namespace ncgmpToolbar
         {
             // Check that the workspace being edited is NCGMP-valid.
             m_EditWorkspace = m_Editor.EditWorkspace;
-            m_DatabaseIsValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_EditWorkspace);
+            m_DatabaseIsValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_EditWorkspace) || ncgmpChecks.IsWorkspaceRalphNCGMPCompliant(m_EditWorkspace);
 
             if (m_DatabaseIsValid == true)
             {

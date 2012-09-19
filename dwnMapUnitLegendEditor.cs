@@ -51,7 +51,7 @@ namespace ncgmpToolbar
             if (theEditor.EditState == esriEditState.esriStateEditing)
             {
                 m_theWorkspace = theEditor.EditWorkspace;
-                if (ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_theWorkspace) == true) 
+                if (ncgmpChecks.IsWorkspaceMinNCGMPCompliant(m_theWorkspace) || ncgmpChecks.IsWorkspaceRalphNCGMPCompliant(m_theWorkspace)) 
                 {
                     sysInfo SysInfoTable = new sysInfo(m_theWorkspace);
                     this.tlslblLegendName.Text = SysInfoTable.ProjName;
@@ -203,7 +203,7 @@ namespace ncgmpToolbar
             }
 
             // Check to see if the database is valid NCGMP
-            bool isValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(openedWorkspace);
+            bool isValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(openedWorkspace) || ncgmpChecks.IsWorkspaceRalphNCGMPCompliant(openedWorkspace);
             if (isValid == false)
             {
                 MessageBox.Show("The selected database is not a valid NCGMP database.", "NCGMP Toolbar");

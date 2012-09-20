@@ -631,16 +631,16 @@
             // 
             this.cboPropTerm.FormattingEnabled = true;
             this.cboPropTerm.Items.AddRange(new object[] {
-            "all",
-            "less than half",
-            "major",
-            "minor",
-            "more than half",
-            "most abundant",
-            "present",
-            "rare",
-            "trace",
-            "variable"});
+            "All",
+            "Less than half",
+            "Major",
+            "Minor",
+            "More than half",
+            "Most abundant",
+            "Present",
+            "Rare",
+            "Trace",
+            "Variable"});
             this.cboPropTerm.Location = new System.Drawing.Point(6, 19);
             this.cboPropTerm.Name = "cboPropTerm";
             this.cboPropTerm.Size = new System.Drawing.Size(152, 21);

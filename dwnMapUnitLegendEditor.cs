@@ -899,7 +899,7 @@ namespace ncgmpToolbar
             // Clear the input controls
             ClearMapUnitInput();
             ClearLithologyInput();
-            txtThisAge.Clear(); /// Clear the age display for this map unit
+            liEvts4ThisUnit.Items.Clear(); /// Clear the age display list for this map unit
             trvLegendItems.SelectedNode = null;
 
             /// Switch to the map unit tab
@@ -1685,6 +1685,7 @@ namespace ncgmpToolbar
 
     #region "Age Controls by Genhan"
         private Dictionary<string, GeologicEventsAccess.GeologicEvents> m_GeologicEventsDictionary = new Dictionary<string, GeologicEventsAccess.GeologicEvents>();
+        private Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> m_ExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
         //private ExtendedAttributesAccess.ExtendedAttributes m_ExtendedAttributes = new ExtendedAttributesAccess.ExtendedAttributes();
         private string m_initMapUnit;
 
@@ -1720,30 +1721,28 @@ namespace ncgmpToolbar
 
             /// Connect with the Extended Attribute table
             ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
-            /// Search for the extended attributes record for this map unit
+            /// Search the extended attributes records for this map unit
             extAttrAccess.AddExtendedAttributes("OwnerID = '" + mapUnit + "'");
-            string vLinkId = null;
-            if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
+            m_ExtendedAttributesDictionary = extAttrAccess.ExtendedAttributesDictionary;
+            foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anExtendedAttributeEntry in extAttrAccess.ExtendedAttributesDictionary)
             {
-                ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
-                vLinkId = thisExtendedAttributes.ValueLinkID;             
-            }
+                ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttribute = anExtendedAttributeEntry.Value;
 
-            /// Connect with the Geologic Event table
-            GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
 
-            /// Search for the geologic event for this map unit
-            if (vLinkId != null)
-            {
-                geoEvtsAccess.AddGeologicEvents("GeologicEvents_ID = '" + vLinkId + "'");
-                if (geoEvtsAccess.GeologicEventsDictionary.Count != 0)
+                string vLinkId = thisExtendedAttribute.ValueLinkID;
+                if (vLinkId != null)
                 {
-                    GeologicEventsAccess.GeologicEvents thisGeologicEvents = geoEvtsAccess.GeologicEventsDictionary.First().Value;
-                    /// Display the age display for this map unit 
-                    txtThisAge.Text = thisGeologicEvents.AgeDisplay;
+                    /// Connect with Geologic Events table
+                    GeologicEventsAccess geoEvtsAccess = new GeologicEventsAccess(m_theWorkspace);
+                    geoEvtsAccess.AddGeologicEvents("GeologicEvents_ID = '" + vLinkId + "'");
+
+                    if (geoEvtsAccess.GeologicEventsDictionary.Count != 0)
+                    {
+                        GeologicEventsAccess.GeologicEvents thisGeologicEvent = geoEvtsAccess.GeologicEventsDictionary.First().Value;
+                        liEvts4ThisUnit.Items.Add(thisGeologicEvent.AgeDisplay);
+                    }
                 }
             }
-
         }
 
         /// <summary>
@@ -1784,7 +1783,7 @@ namespace ncgmpToolbar
         #region "Initialize the empty tabs"
             private void initEmptyAgeEventTab()
             {
-                txtThisAge.Clear();
+                liEvts4ThisUnit.Items.Clear();
                 liEvts.SelectedIndex = -1;
 
                 initEmptyEventTab();
@@ -1831,7 +1830,7 @@ namespace ncgmpToolbar
             private void btnAgeChangeAccept_Click(object sender, EventArgs e)
             {
                 if (liEvts.SelectedIndex == -1) { return; }
-                txtThisAge.Text = liEvts.SelectedItem.ToString();
+                liEvts4ThisUnit.Items.Add(liEvts.SelectedItem.ToString());
 
                 if (txtMapUnitAbbreviation.Text == null) { return; }
 
@@ -1844,7 +1843,9 @@ namespace ncgmpToolbar
                 string selectedString = liEvts.SelectedItem.ToString();
                 /// Remove the selected item from the event list box
                 liEvts.Items.Remove(liEvts.SelectedItem);
-                /// Clear this map unit age display if the deleted age event is selected for this map unit
+                /// Delete this map unit age display if the deleted age event is selected for this map unit
+                
+
                 if (selectedString == txtThisAge.Text) { txtThisAge.Clear(); }
 
                 /// Remove the selected item from the list box dictionary

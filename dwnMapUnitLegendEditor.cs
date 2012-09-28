@@ -1728,7 +1728,6 @@ namespace ncgmpToolbar
             {
                 ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttribute = anExtendedAttributeEntry.Value;
 
-
                 string vLinkId = thisExtendedAttribute.ValueLinkID;
                 if (vLinkId != null)
                 {
@@ -1830,27 +1829,68 @@ namespace ncgmpToolbar
             private void btnAgeChangeAccept_Click(object sender, EventArgs e)
             {
                 if (liEvts.SelectedIndex == -1) { return; }
-                liEvts4ThisUnit.Items.Add(liEvts.SelectedItem.ToString());
+                if (m_theWorkspace == null) { return; }
+                if (liEvts4ThisUnit.Items.Contains(liEvts.SelectedItem.ToString())) { return; }
 
-                if (txtMapUnitAbbreviation.Text == null) { return; }
+                liEvts4ThisUnit.Items.Add(liEvts.SelectedItem.ToString());
+                string ownerId = m_EvtListDictionary[liEvts.SelectedItem.ToString()];
+
+                /// Generate a new Extended Attribute record
+                ExtendedAttributesAccess extAttrAccess = new ExtendedAttributesAccess(m_theWorkspace);
+                string thisExtAttrId = extAttrAccess.NewExtendedAttributes(m_initMapUnit, null, null, null, ownerId, null, commonFunctions.GetCurrentDataSourceID(), null);
+                ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = extAttrAccess.ExtendedAttributesDictionary.First().Value;
+                m_ExtendedAttributesDictionary.Add(thisExtAttrId, thisExtAttr);
 
             }
 
             private void btnAgeDelete_Click(object sender, EventArgs e)
             {
-                if (liEvts.SelectedIndex == -1) { return; }
+                if (liEvts.Focused)
+                {
+                    if (liEvts.SelectedIndex == -1) { return; }
 
-                string selectedString = liEvts.SelectedItem.ToString();
-                /// Remove the selected item from the event list box
-                liEvts.Items.Remove(liEvts.SelectedItem);
-                /// Delete this map unit age display if the deleted age event is selected for this map unit
-                
+                    string selectedString = liEvts.SelectedItem.ToString();
+                    /// Remove the selected item from the event list box
+                    liEvts.Items.Remove(liEvts.SelectedItem);
 
-                if (selectedString == txtThisAge.Text) { txtThisAge.Clear(); }
+                    /// Remove the selected item from the list box dictionary
+                    string valueLinkId = m_EvtListDictionary[selectedString];
+                    m_GeologicEventsDictionary.Remove(valueLinkId);
+                    m_EvtListDictionary.Remove(selectedString);
 
-                /// Remove the selected item from the list box dictionary
-                m_GeologicEventsDictionary.Remove(m_EvtListDictionary[selectedString]);
-                m_EvtListDictionary.Remove(selectedString);
+                    /// Remove the related extended attribute record
+                    foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anExtAttrEntry in m_ExtendedAttributesDictionary)
+                    {
+                        ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = anExtAttrEntry.Value;
+                        if (thisExtAttr.ValueLinkID == valueLinkId)
+                        {
+                            m_ExtendedAttributesDictionary.Remove(anExtAttrEntry.Key);
+                            liEvts4ThisUnit.Items.Remove(selectedString);
+                            return;
+                        }
+                    }
+
+                    isUpdate4AgeEvent = false;
+                }
+
+                if (liEvts4ThisUnit.Focused)
+                {
+                    if (liEvts4ThisUnit.SelectedIndex == -1) { return; }
+
+                    string selectedString = liEvts4ThisUnit.SelectedItem.ToString();
+                    liEvts4ThisUnit.Items.Remove(selectedString);
+
+                    /// Remove the selected item from this map unit events dictionary
+                    foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anExtAttrEntry in m_ExtendedAttributesDictionary)
+                    {
+                        ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = anExtAttrEntry.Value;
+                        if (thisExtAttr.ValueLinkID == m_EvtListDictionary[selectedString])
+                        {
+                            m_ExtendedAttributesDictionary.Remove(anExtAttrEntry.Key);
+                            return;
+                        }
+                    }
+                }
             }
 
             private void liEvts_SelectedIndexChanged(object sender, EventArgs e)
@@ -2482,10 +2522,29 @@ namespace ncgmpToolbar
                     
                     /// Remove the old age display text from the age tab
                     liEvts.Items.Remove(selectedEvent.AgeDisplay);
+
+                    /// Remove item from the evet list for this map unit
+                    if (liEvts4ThisUnit.Items.Contains(selectedEvent.AgeDisplay))
+                    {
+                        liEvts4ThisUnit.Items.Remove(selectedEvent.AgeDisplay);
+                        string thisGeoEvtID = m_EvtListDictionary[selectedEvent.AgeDisplay];
+
+                        List<string> listIds = new List<string>();
+                        foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anExtAttrEntry in m_ExtendedAttributesDictionary)
+                        {
+                            ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = anExtAttrEntry.Value;
+                            if (thisExtAttr.ValueLinkID == thisGeoEvtID)
+                            {
+                                string thisID = anExtAttrEntry.Key;                               
+                                listIds.Add(thisID);
+                            }
+                        }
+
+                        for (int i = 0; i < listIds.Count; i++) { m_ExtendedAttributesDictionary.Remove(listIds[i]); }
+                    }
+
                     /// Remove the old connection between list item and age
                     m_EvtListDictionary.Remove(selectedEvent.AgeDisplay);
-
-                    if (txtThisAge.Text == selectedEvent.AgeDisplay) { txtThisAge.Clear(); }
 
                     selectedEvent.AgeDisplay = txtAgeDisplay.Text;
                     selectedEvent.Event = cboEvt.SelectedItem.ToString();
@@ -2522,7 +2581,7 @@ namespace ncgmpToolbar
                         liEvts.Items.Add(selectedEvent.AgeDisplay);
                         /// Add the new item into list box dictionary
                         m_EvtListDictionary.Add(selectedEvent.AgeDisplay, selectedEvent.GeologicEvents_ID);
-                    } 
+                    }
                 }
                 else
                 {
@@ -2556,7 +2615,7 @@ namespace ncgmpToolbar
                         liEvts.Items.Add(txtAgeDisplay.Text);
                         /// Add the new item into list box dictionary
                         m_EvtListDictionary.Add(txtAgeDisplay.Text, thisGeologicEvents.GeologicEvents_ID);
-                    }                   
+                    }
                 }
 
                 /// Switch into event list tab
@@ -2703,14 +2762,27 @@ namespace ncgmpToolbar
             }
             foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> anDeleteGeologicEventsEntry in deleteGeologicEventsDictionary)
             {
-                if (txtThisAge.Text == anDeleteGeologicEventsEntry.Value.AgeDisplay) { txtThisAge.Clear(); }
-                geoEvtsAccess.DeleteGeologicEvents(anDeleteGeologicEventsEntry.Value);
+                GeologicEventsAccess.GeologicEvents thisGeoEvt = anDeleteGeologicEventsEntry.Value;
+                /// Remove item from the evet list for this map unit
+                if (liEvts4ThisUnit.Items.Contains(thisGeoEvt.AgeDisplay))
+                {
+                    liEvts4ThisUnit.Items.Remove(thisGeoEvt.AgeDisplay);
+                    string thisGeoEvtID = m_EvtListDictionary[thisGeoEvt.AgeDisplay];
+
+                    foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anExtAttrEntry in m_ExtendedAttributesDictionary)
+                    {
+                        ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = anExtAttrEntry.Value;
+                        if (thisExtAttr.ValueLinkID == thisGeoEvtID)
+                        {
+                            string thisID = anExtAttrEntry.Key;
+                            m_ExtendedAttributesDictionary.Remove(thisID);
+                        }
+                    }
+                }
+                geoEvtsAccess.DeleteGeologicEvents(thisGeoEvt);
             }
 
             geoEvtsAccess.GeologicEventsDictionary = m_GeologicEventsDictionary;
-            //geoEvtsAccess.SaveGeologicEvents();
-
-            string thisValueLinkId = null;
 
             geoEvtsAccess.SaveGeologicEvents();
 
@@ -2722,8 +2794,6 @@ namespace ncgmpToolbar
 
             foreach (KeyValuePair<string, GeologicEventsAccess.GeologicEvents> aGeologicEventsEntry in geoEvtsAccess.GeologicEventsDictionary)
             {
-                if (aGeologicEventsEntry.Value.AgeDisplay == txtThisAge.Text)
-                { thisValueLinkId = aGeologicEventsEntry.Value.GeologicEvents_ID; }
                 m_EvtListDictionary.Add(aGeologicEventsEntry.Value.AgeDisplay, aGeologicEventsEntry.Key);
             }
             
@@ -2737,31 +2807,22 @@ namespace ncgmpToolbar
             /// Search for the related record in the extended attribute table with the old map unit value
             extAttrAccess.AddExtendedAttributes(("OwnerID = '" + m_initMapUnit + "'"));
 
-            if (thisValueLinkId != null)
+            Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes> deleteExtendedAttributesDictionary = new Dictionary<string, ExtendedAttributesAccess.ExtendedAttributes>();
+            foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anOldExtendedAttributesEntry in extAttrAccess.ExtendedAttributesDictionary)
             {
-                if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
-                {
-                    ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
-                    thisExtendedAttributes.ValueLinkID = thisValueLinkId;
-                    thisExtendedAttributes.DataSourceID = commonFunctions.GetCurrentDataSourceID();
-                    thisExtendedAttributes.OwnerID = txtMapUnitAbbreviation.Text;
-                    extAttrAccess.UpdateExtendedAttributes(thisExtendedAttributes);
-                }
-                else
-                {
-                    extAttrAccess.NewExtendedAttributes(txtMapUnitAbbreviation.Text, null, null, null, thisValueLinkId, null,
-                        commonFunctions.GetCurrentDataSourceID(), txtNotes.Text);
-                }
+                /// Identify if the old record still exits in the new dictionary
+                /// If not, delete this record
+                if (!m_ExtendedAttributesDictionary.ContainsKey(anOldExtendedAttributesEntry.Key))
+                { deleteExtendedAttributesDictionary.Add(anOldExtendedAttributesEntry.Key, anOldExtendedAttributesEntry.Value); }
             }
-            else
+
+            foreach (KeyValuePair<string, ExtendedAttributesAccess.ExtendedAttributes> anDeleteExtendedAttributesEntry in deleteExtendedAttributesDictionary)
             {
-                /// Delete this Extended Attributes record if no age display value for this map unit
-                if (extAttrAccess.ExtendedAttributesDictionary.Count != 0)
-                {
-                    ExtendedAttributesAccess.ExtendedAttributes thisExtendedAttributes = extAttrAccess.ExtendedAttributesDictionary.First().Value;
-                    extAttrAccess.DeleteExtendedAttributes(thisExtendedAttributes);
-                }
+                ExtendedAttributesAccess.ExtendedAttributes thisExtAttr = anDeleteExtendedAttributesEntry.Value;      
+                extAttrAccess.DeleteExtendedAttributes(thisExtAttr);
             }
+
+            extAttrAccess.ExtendedAttributesDictionary = m_ExtendedAttributesDictionary;
 
             extAttrAccess.SaveExtendedAttributes();
             /// <end> ---------------------------------------------------------------------------------------------------
@@ -2804,7 +2865,27 @@ namespace ncgmpToolbar
             extAttrAccess.DeleteExtendedAttributes(anExtendedAttributes);           
         }
 
+        #region Change the focus of listboxes
+
+        private void liEvts4ThisUnit_Click(object sender, EventArgs e)
+        {
+            if (!liEvts.Focused) 
+            {
+                isUpdate4AgeEvent = false;
+                liEvts.SelectedIndex = -1;               
+            }
+        }
+
+        private void liEvts_Click(object sender, EventArgs e)
+        {
+            if (!liEvts4ThisUnit.Focused) { liEvts4ThisUnit.SelectedIndex = -1; }
+        }
+
+        #endregion
+        
     #endregion
+
+
 
     }
 }

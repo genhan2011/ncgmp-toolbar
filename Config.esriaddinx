@@ -44,10 +44,8 @@
         <Menu id="Arizona_Geological_Survey_ncgmpToolbar_NCGMP_Menu" caption="NCGMP Menu" isRootMenu="false">
           <Items>
             <Button refID="Arizona_Geological_Survey_ncgmpToolbar_btnOpenNcgmpDatabase" />
-            <Button refID="Arizona_Geological_Survey_ncgmpToolbar_btnNewNcgmpDatabase" />
             <Button refID="Arizona_Geological_Survey_ncgmpToolbar_btnDatabaseMaintenance" />
             <Button separator="true" refID="Arizona_Geological_Survey_ncgmpToolbar_btnShowMapUnitLegendEditor" />
-            <Button separator="true" refID="Arizona_Geological_Survey_ncgmpToolbar_btnTheTestingButton" />
           </Items>
         </Menu>
       </Menus>

@@ -327,7 +327,6 @@
     <Content Include="Images\page_copy.png" />
     <Content Include="Images\pencil.png" />
     <Content Include="Images\SibDrop.jpg" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="Resources\ZONE11.XML" />
     <None Include="Resources\FULL-12-3-10.XML" />
     <None Include="Resources\FULL-12-7-10.XML" />

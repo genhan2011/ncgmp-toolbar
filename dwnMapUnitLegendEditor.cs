@@ -119,88 +119,44 @@ namespace ncgmpToolbar
         private void tlsbtnShowCopyPanel_Click(object sender, EventArgs e)
         {
             #region "Open the Database to Copy From"
-            // Ask the user to browse to another NCGMP Database
-            string getSqlDatabase = "False";
+
         findDatabase:
             // Check the registry
             string regValue = commonFunctions.ReadReg("Software\\NCGMPTools", "getSqlDatabase");
-            if (regValue == null)
-            {
-                // There is no registry entry, open the chooser form
-                sqlOrFileChooser chooserForm = new sqlOrFileChooser();
-                chooserForm.ShowDialog();
-
-                // After the form is closed, use the selected method and write the registry if applicable
-                getSqlDatabase = chooserForm.m_getSqlDatabase;
-                if (chooserForm.m_writeReg == true)
-                {
-                    commonFunctions.WriteReg("Software\\NCGMPTools", "getSqlDatabase", getSqlDatabase);
-                }
-            }
-            else
-            {
-                // There is a registry entry, lead the user in the appropriate direction
-                if (regValue == "True")
-                {
-                    getSqlDatabase = "True";
-                }
-            }
 
             // Find a Database
             IWorkspaceFactory wsFact = null;
             IWorkspace openedWorkspace = null;
 
-            if (getSqlDatabase == "True")
+            // Browse for a file, personal or SDE geodatabase
+            IGxObjectFilter objectFilter = new GxFilterWorkspaces();
+            IGxObject openedObject = commonFunctions.OpenArcFile(objectFilter, "Please select an NCGMP database");
+            if (openedObject == null) { return; }
+
+            // Check to see if it is a File, Personal or SDE database, create appropriate workspace factory
+            string pathToOpen = null;
+
+            switch (openedObject.Category)
             {
-                // Open the form listing AZGS SQL Databases
-                azgsSqlDatabaseChooser chooseDbForm = new azgsSqlDatabaseChooser();
-                chooseDbForm.ShowDialog();
-                if (chooseDbForm.databaseName == null) { return; }
-                if (chooseDbForm.versionName == null) { return; }
-
-                wsFact = new SdeWorkspaceFactoryClass();
-
-                // Setup connection properties for the selected database
-                IPropertySet connectionProperties = new PropertySetClass();
-                connectionProperties.SetProperty("SERVER", "malachite\\azgsgeodatabases");
-                connectionProperties.SetProperty("INSTANCE", "sde:sqlserver:malachite\\azgsgeodatabases");
-                connectionProperties.SetProperty("DATABASE", chooseDbForm.databaseName);
-                connectionProperties.SetProperty("AUTHENTICATION_MODE", "OSA");
-                connectionProperties.SetProperty("VERSION", "DBO." + chooseDbForm.versionName);
-
-                openedWorkspace = wsFact.Open(connectionProperties, 0);
+                case "Personal Geodatabase":
+                    wsFact = new AccessWorkspaceFactoryClass();
+                    pathToOpen = openedObject.FullName;
+                    break;
+                case "File Geodatabase":
+                    wsFact = new FileGDBWorkspaceFactoryClass();
+                    pathToOpen = openedObject.FullName;
+                    break;
+                case "Spatial Database Connection":
+                    wsFact = new SdeWorkspaceFactoryClass();
+                    IGxRemoteDatabaseFolder remoteDatabaseFolder = (IGxRemoteDatabaseFolder)openedObject.Parent;
+                    pathToOpen = remoteDatabaseFolder.Path + openedObject.Name;
+                    break;
+                default:
+                    break;
             }
-            else
-            {
-                // Browse for a file, personal or SDE geodatabase
-                IGxObjectFilter objectFilter = new GxFilterWorkspaces();
-                IGxObject openedObject = commonFunctions.OpenArcFile(objectFilter, "Please select an NCGMP database");
-                if (openedObject == null) { return; }
+            // This doesn't seem to be working for SDE databases.
+            openedWorkspace = wsFact.OpenFromFile(pathToOpen, 0);
 
-                // Check to see if it is a File, Personal or SDE database, create appropriate workspace factory
-                string pathToOpen = null;
-
-                switch (openedObject.Category)
-                {
-                    case "Personal Geodatabase":
-                        wsFact = new AccessWorkspaceFactoryClass();
-                        pathToOpen = openedObject.FullName;
-                        break;
-                    case "File Geodatabase":
-                        wsFact = new FileGDBWorkspaceFactoryClass();
-                        pathToOpen = openedObject.FullName;
-                        break;
-                    case "Spatial Database Connection":
-                        wsFact = new SdeWorkspaceFactoryClass();
-                        IGxRemoteDatabaseFolder remoteDatabaseFolder = (IGxRemoteDatabaseFolder)openedObject.Parent;
-                        pathToOpen = remoteDatabaseFolder.Path + openedObject.Name;
-                        break;
-                    default:
-                        break;
-                }
-                // This doesn't seem to be working for SDE databases.
-                openedWorkspace = wsFact.OpenFromFile(pathToOpen, 0);
-            }
 
             // Check to see if the database is valid NCGMP
             bool isValid = ncgmpChecks.IsWorkspaceMinNCGMPCompliant(openedWorkspace);
